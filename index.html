@@ -7,15 +7,15 @@
 		<script src=".\wasmtest.js"></script>
 
 		<script>
-			addOne = Module.cwrap('addOne', 'number', ['number']);			
 
 			function setupPage() {
+				addOne = Module.cwrap('addOne', 'number', ['number']);			
 				alert('here');
 				alert(addOne(2));		
 			}
 		</script>
 	</head>
-	<body style="width: 100%; margin: 0;" onload="setupPage()">
-		hello
+	<body style="width: 100%; margin: 0;">
+		<button onclick="setupPage();">hello</button>
 	</body>
 </html>
