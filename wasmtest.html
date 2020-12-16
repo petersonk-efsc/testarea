@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<script src=".\wasmtest.js"></script>
+
+		<script>
+			addOne = Module.cwrap('addOne', 'number', ['number']);			
+
+			function setupPage() {
+				alert('here');
+				alert(addOne(2));		
+			}
+		</script>
+	</head>
+	<body style="width: 100%; margin: 0;" onload="setupPage()">
+		hello
+	</body>
+</html>
