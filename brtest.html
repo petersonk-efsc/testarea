@@ -30,13 +30,14 @@ function setupPage() {
 
 		var inputElem = document.createElement("div");
 		inputElem.setAttribute('id', 'input' + count)
-		inputElem.innerHTML = f + ' <input type="file" id="' + fileInputId + '"><textarea id="' + fileSourceId + '" name="' + fileSourceId + '" rows="4" cols="50" wrap="off"></textarea>'
+		inputElem.setAttribute('class', 'inputDiv')
+		inputElem.innerHTML = f + ' <input type="file" id="' + fileInputId + '"><textarea id="' + fileSourceId + '" name="' + fileSourceId + '" class="fileText" rows="4" cols="50" wrap="off"></textarea>'
 		document.getElementById("inputDiv").appendChild(inputElem);
 
 		var fileInput = document.getElementById(fileInputId);
 		fileInput.addEventListener('change', function(e) {
 			var file = fileInput.files[0];
-			inputElem.setAttribute('fileRead', file.name);
+			inputElem.getElementById(fileSourceId).setAttribute('id', file.name);
 			alert(file.name);
 			var reader = new FileReader();
 
@@ -54,7 +55,7 @@ function setupPage() {
 		<div id='inputDiv'>
 		</div>
 <button id='run'>
-    RUN2
+    RUN3
 </button>
 <div id="results"></div>
     </body>

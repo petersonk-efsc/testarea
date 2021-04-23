@@ -1155,8 +1155,7 @@ def do_it(event):
     style_summ.files = []
     
     src_file = SrcFile()
-    alert('in here')
-    src_file.filename = document['input1'].fileRead
+    alert('in here ' + document.select('textarea.fileText')[0].id)
     read_upload_file(src_file, 'fileSource1')
     alert('after read')
         
