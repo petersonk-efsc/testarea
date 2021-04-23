@@ -1079,17 +1079,34 @@ def process_one_file(src_file):
     check_comments(src_file)
     check_other_stuff(src_file)
 
-def read_browser_file(src_file):
-    """TBD."""
-    if pathlib.Path(src_file.filename).exists():
-        with open(src_file.filename, 'r') as in_file:
-            for line in in_file:
-                one_line = Line()
-                line = list(line)
-                detabify(line)
-                one_line.orig_line = line
-                one_line.clean_line = line.copy()
-                src_file.lines.append(one_line)
+def print_br_summary_results(style_summ):
+    summ_text = ''
+    for ind in range(Line.ERROR_OTHER+1):
+        style_summ.issues[ind] = 0
+    style_summ.total = 0
+    style_summ.score = 0
+    for src_file in style_summ.files:
+        for stmt in src_file.lines:
+            for issue in stmt.issues:
+                style_summ.issues[issue[0]] += 1
+    for cat in StyleSummary.CATEGORIES:
+        print_category_results(style_summ, cat[0], cat[1])
+    print('------------------------------')
+    print('Style Score:', style_summ.score, '/', style_summ.total)
+    print()
+    for src_file in style_summ.files:
+        print('******************************')
+        print(src_file.filename)
+        print('******************************')
+        if len(src_file.lines) == 0:
+            print('MISSING FILE!!!')
+        elif len(src_file.tokens) == 0:
+            print('BLANK FILE!!!')
+        else:
+            for stmt in src_file.lines:
+                for issue in stmt.issues:
+                    print('// STYLE CHECK:', issue[1])
+                print(''.join(stmt.orig_line), end='')
 
 
 from browser import document, html
@@ -1099,6 +1116,7 @@ def do_it(event):
     all_lines = tmp.split('\n')
     
     src_file = SrcFile()
+    src_file.filename = 'File 1'
     for line in all_lines:
         one_line = Line()
         line_with_new = line + '\n'
@@ -1113,8 +1131,8 @@ def do_it(event):
     output_str = '<pre>'
     for stmt in src_file.lines:
         for issue in stmt.issues:
-            output_str += '// STYLE CHECK:' + issue[1] + '\n'
-        output_str += ''.join(stmt.orig_line)
+            output_str += '<span style="background-color: pink">// STYLE CHECK:' + issue[1] + '</span>\n'
+        output_str += ''.join(stmt.orig_line).replace('<', '&lt;')
     output_str += '</pre>'
         
     document['results'].text = ''
