@@ -82,6 +82,7 @@ from browser import document, html
 
 def do_it(event):
     tmp = document['file1Text'].value
+    alert('****\n" + tmp + "\n****")
     whole_file = []
     for line in tmp.split('\n'):
         tmp2 = list(line)
@@ -98,6 +99,6 @@ def do_it(event):
     document['results'].text = ''
     document['results'] <= html.P(output_str)
 
-from browser import document, html
+from browser import document, alert, html
 document['run'].bind('click',do_it)
 
