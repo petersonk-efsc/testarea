@@ -1152,8 +1152,8 @@ def read_upload_file(src_file, dom_file_obj):
 
 def do_it(event):
     tmp_msg = ''
-    for x in document.select('textarea.fileText'):
-        tmp_msg += document[x.id] + '\n'
+    for x in document.select('textarea.fileText'):        
+        tmp_msg += x.id + ' -- ' + document[x.id].value + '\n'
     alert(tmp_msg)
     
     style_summ = StyleSummary()
