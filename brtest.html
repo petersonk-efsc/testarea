@@ -32,7 +32,9 @@ function setupPage() {
 		var inputElem = document.createElement("div");
 		inputElem.setAttribute('id', 'input' + count)
 		inputElem.setAttribute('class', 'inputDiv')
-		inputElem.innerHTML = f + ' <input type="file" id="' + fileInputId + '"><textarea id="' + fileSourceId + '" name="' + fileSourceId + '" class="fileText" rows="4" cols="50" wrap="off"></textarea><input type="hidden" id="' + fileFnameId + '" name="' + fileFnameId + '" value="' f + '">'
+		inputElem.innerHTML = f + ' <input type="file" id="' + fileInputId + '">'
+			+ '<textarea id="' + fileSourceId + '" name="' + fileSourceId + '" class="fileText" rows="4" cols="50" wrap="off"></textarea>'
+			+ '<input type="hidden" id="' + fileFnameId + '" name="' + fileFnameId + '" value="' + f + '">'
 		document.getElementById("inputDiv").appendChild(inputElem);
 
 		var fileInput = document.getElementById(fileInputId);
