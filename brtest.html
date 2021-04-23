@@ -17,37 +17,43 @@
 /**************************************************************************/
 
 function setupPage() {
-	var file1Input = document.getElementById('file1');
-	file1Input.addEventListener('change', function(e) {
-		var file = file1Input.files[0];
-		var reader = new FileReader();
+	const urlParams = new URLSearchParams(window.location.search);
+	if (urlParams.has('files')) {
+		files = urlParams.get('files').split(',')
+	} else {
+		files = ["file.cpp"]
+	}
+	count = 1
+	for (f of files) {
+		fileInputId = 'fileInput' + count
+		fileSourceId = 'fileSource' + count
 
-		reader.onload = function(e) {
-			document.getElementById("file1Text").value = e.target.result;
-		};
-		reader.readAsBinaryString(file);
-	});
-	
-	var file2Input = document.getElementById('file2');
-	file2Input.addEventListener('change', function(e) {
-		var file = file2Input.files[0];
-		var reader = new FileReader();
+		var inputElem = document.createElement("div");
+		inputElem.setAttribute('id', 'input' + count)
+		inputElem.innerHTML = f + ' <input type="file" id="' + fileInputId + '"><textarea id="' + fileSourceId + '" name="' + fileSourceId + '" rows="4" cols="50" wrap="off"></textarea>'
+		document.getElementById("inputDiv").appendChild(inputElem);
 
-		reader.onload = function(e) {
-			document.getElementById("file2Text").value = e.target.result;
-		};
-		reader.readAsBinaryString(file);
-	});		
+		var fileInput = document.getElementById(fileInputId);
+		fileInput.addEventListener('change', function(e) {
+			var file = fileInput.files[0];
+			inputElem.setAtrribute('fileRead', file.name);
+			alert(file.name);
+			var reader = new FileReader();
+
+			reader.onload = function(e) {
+				document.getElementById(fileSourceId).value = e.target.result;
+			};
+			reader.readAsBinaryString(file);
+		});
+		count++;
+	}
 }
 	</script>
     </head>
-    <body onload="brython(1); setupPage();">
-<input type="file" id="file1">
-<textarea id="file1Text" name="file1Text" rows="4" cols="50" wrap="off"></textarea>
-<br/>
-<input type="file" id="file2">
-<textarea id="file2Text" name="file2Text" rows="4" cols="50" wrap="off"></textarea>
-<br/>
+    <!-- body onload="brython(1); setupPage();" -->
+    <body onload="setupPage();">
+		<div id='inputDiv'>
+		</div>
 <button id='run'>
     RUN7
 </button>

@@ -1151,15 +1151,12 @@ def read_upload_file(src_file, dom_file_obj):
 
 
 def do_it(event):
-    tmp = document['file1Text'].value
-    all_lines = tmp.split('\n')
-    
     style_summ = StyleSummary()
     style_summ.files = []
     
     src_file = SrcFile()
-    src_file.filename = 'File 1'
-    read_upload_file(src_file, 'file1Text')
+    src_file.filename = document['input1'].fileRead
+    read_upload_file(src_file, 'fileSource1')
         
     process_one_file(src_file)
     
