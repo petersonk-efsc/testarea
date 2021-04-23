@@ -85,7 +85,8 @@ def do_it(event):
     alert('****\n' + tmp + '\n****')
     whole_file = []
     tmp_str = ''
-    for line in tmp.split('\n'):
+    all_lines = tmp.split('\n')
+    for line in all_lines:
         tmp_str += '1' + str(whole_file) + '\n'
         tmp2 = list(line)
         tmp_str += '2' + str(whole_file) + '\n'
