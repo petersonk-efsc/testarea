@@ -1155,8 +1155,9 @@ def do_it(event):
     style_summ.files = []
     
     src_file = SrcFile()
-    src_file.filename = document['input1'].fileRead
+    alert('in here')
     read_upload_file(src_file, 'fileSource1')
+    alert('after read')
         
     process_one_file(src_file)
     
