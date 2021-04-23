@@ -1110,11 +1110,12 @@ def do_it(event):
     
     process_one_file(src_file)
 
-    output_str = ''
+    output_str = '<pre>'
     for stmt in src_file.lines:
         for issue in stmt.issues:
             output_str += '// STYLE CHECK:' + issue[1] + '\n'
         output_str += ''.join(stmt.orig_line)
+    output_str += '</pre>'
         
     document['results'].text = ''
     document['results'] <= html.P(output_str)
