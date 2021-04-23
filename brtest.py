@@ -1156,6 +1156,7 @@ def do_it(event):
     
     src_file = SrcFile()
     alert('in here')
+    src_file.filename = document['input1'].fileRead
     read_upload_file(src_file, 'fileSource1')
     alert('after read')
         
