@@ -1064,6 +1064,59 @@ def print_summary_results(style_summ):
                 print(''.join(stmt.orig_line), end='')
 
 
+def get_category_results(style_summ, cat_num, cat_str):
+    """TBD."""
+    cat_text = ''
+    score, max = get_cat_score(style_summ, cat_num)
+    style_summ.total += max
+    style_summ.score += score
+    cat_text += cat_str + ' --> ' + str(score) + '/' + str(max) + '\n'
+    for src_file in style_summ.files:
+        for stmt_ind in range(len(src_file.lines)):
+            for issue in src_file.lines[stmt_ind].issues:
+                if issue[0] in cat_num:
+                    cat_text += '    ' + src_file.filename + ' (' + str(stmt_ind + 1) + ') ' + issue[1] + '\n'
+    return cat_text
+
+
+def get_summary_results(style_summ, replace_less=False, span_color=False):
+    summ_text = ''
+    for ind in range(Line.ERROR_OTHER+1):
+        style_summ.issues[ind] = 0
+    style_summ.total = 0
+    style_summ.score = 0
+    for src_file in style_summ.files:
+        for stmt in src_file.lines:
+            for issue in stmt.issues:
+                style_summ.issues[issue[0]] += 1
+    for cat in StyleSummary.CATEGORIES:
+        summ_text += get_category_results(style_summ, cat[0], cat[1])
+    summ_text += '------------------------------\n'
+    summ_text += 'Style Score:' + str(style_summ.score) + '/' + str(style_summ.total) + '\n\n'
+
+    for src_file in style_summ.files:
+        summ_text += '******************************\n'
+        summ_text += src_file.filename + '\n'
+        summ_text += '******************************\n'
+        if len(src_file.lines) == 0:
+            summ_text += 'MISSING FILE!!!\n'
+        elif len(src_file.tokens) == 0:
+            summ_text += 'BLANK FILE!!!\n'
+        else:
+            for stmt in src_file.lines:
+                for issue in stmt.issues:
+                    if span_color:
+                        summ_text += '<span style="background-color: pink">'
+                    summ_text += '// STYLE CHECK: ' + issue[1] + '\n'
+                    if span_color:
+                        summ_text += '</span>'
+                if replace_less:
+                    summ_text += ''.join(stmt.orig_line).replace('<', '&lt;')
+                else:
+                    summ_text += ''.join(stmt.orig_line)
+    return summ_text
+
+
 def process_one_file(src_file):
     """TBD."""
     remove_comments_and_strings(src_file)
@@ -1079,44 +1132,14 @@ def process_one_file(src_file):
     check_comments(src_file)
     check_other_stuff(src_file)
 
-def print_br_summary_results(style_summ):
-    summ_text = ''
-    for ind in range(Line.ERROR_OTHER+1):
-        style_summ.issues[ind] = 0
-    style_summ.total = 0
-    style_summ.score = 0
-    for src_file in style_summ.files:
-        for stmt in src_file.lines:
-            for issue in stmt.issues:
-                style_summ.issues[issue[0]] += 1
-    for cat in StyleSummary.CATEGORIES:
-        print_category_results(style_summ, cat[0], cat[1])
-    print('------------------------------')
-    print('Style Score:', style_summ.score, '/', style_summ.total)
-    print()
-    for src_file in style_summ.files:
-        print('******************************')
-        print(src_file.filename)
-        print('******************************')
-        if len(src_file.lines) == 0:
-            print('MISSING FILE!!!')
-        elif len(src_file.tokens) == 0:
-            print('BLANK FILE!!!')
-        else:
-            for stmt in src_file.lines:
-                for issue in stmt.issues:
-                    print('// STYLE CHECK:', issue[1])
-                print(''.join(stmt.orig_line), end='')
-
 
 from browser import document, html
 
-def do_it(event):
-    tmp = document['file1Text'].value
+
+def read_upload_file(src_file, dom_file_obj):
+    """TBD."""
+    tmp = document[dom_file_obj].value
     all_lines = tmp.split('\n')
-    
-    src_file = SrcFile()
-    src_file.filename = 'File 1'
     for line in all_lines:
         one_line = Line()
         line_with_new = line + '\n'
@@ -1125,15 +1148,24 @@ def do_it(event):
         one_line.orig_line = line_list
         one_line.clean_line = line_list.copy()
         src_file.lines.append(one_line)
-    
-    process_one_file(src_file)
 
-    output_str = '<pre>'
-    for stmt in src_file.lines:
-        for issue in stmt.issues:
-            output_str += '<span style="background-color: pink">// STYLE CHECK:' + issue[1] + '</span>\n'
-        output_str += ''.join(stmt.orig_line).replace('<', '&lt;')
-    output_str += '</pre>'
+
+def do_it(event):
+    tmp = document['file1Text'].value
+    all_lines = tmp.split('\n')
+    
+    style_summ = StyleSummary()
+    style_summ.files = []
+    
+    src_file = SrcFile()
+    src_file.filename = 'File 1'
+    read_upload_file(src_file, 'file1Text')
+        
+    process_one_file(src_file)
+    
+    style_summ.files.append(src_file)
+
+    output_str = '<pre>' + get_summary_results(style_summ, True, True) + '</pre>'
         
     document['results'].text = ''
     document['results'] <= html.P(output_str)
