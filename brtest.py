@@ -14,8 +14,9 @@ def remove_comments_and_strings(whole_file):
     prev_char = ' '
     set_space = False
     for line in whole_file:
+        prev_char = '\n'
         for ind in range(len(line)):
-            set_space= False
+            set_space = False
             if in_quote:
                 if line[ind] == '"' and prev_char != '\\':
                     in_quote = False
