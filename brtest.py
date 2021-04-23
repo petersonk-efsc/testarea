@@ -1153,14 +1153,14 @@ def read_upload_file(src_file, dom_file_obj):
 def do_it(event):
     tmp_msg = ''
     for x in document.select('textarea.fileText'):
-        tmp_msg += x.id + '\n'
+        tmp_msg += document[x.id] + '\n'
     alert(tmp_msg)
     
     style_summ = StyleSummary()
     style_summ.files = []
     
     src_file = SrcFile()
-    src_file.filename = document['fileName1'].value
+    src_file.filename = document['fileSource1Name'].value
     read_upload_file(src_file, 'fileSource1')
         
     process_one_file(src_file)
