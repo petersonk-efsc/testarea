@@ -86,12 +86,16 @@ def do_it(event):
     whole_file = []
     tmp_str = ''
     for line in tmp.split('\n'):
+        tmp_str += '1' + str(whole_file) + '\n'
         tmp2 = list(line)
+        tmp_str += '2' + str(whole_file) + '\n'
         tmp2.append('\n')
+        tmp_str += '3' + str(whole_file) + '\n'
         whole_file.append(tmp2)
+        tmp_str += '4' + str(whole_file) + '\n'
         if line.find('/' + '*') >= 0:
             alert(line + ' -- ' + str(tmp2) + '\n' + str(whole_file))    
-        tmp_str += str(whole_file) + '\n'
+        tmp_str += '5' + str(whole_file) + '\n'
     
 	remove_comments_and_strings(whole_file)
 	detabify(whole_file)
