@@ -27,7 +27,7 @@ function setupPage() {
 	for (f of files) {
 		fileInputId = 'fileInput' + count
 		fileSourceId = 'fileSource' + count
-		fileFnameId = 'fileName' + count
+		fileFnameId = 'fileSource' + count + 'Name'
 
 		var inputElem = document.createElement("div");
 		inputElem.setAttribute('id', 'input' + count)
@@ -58,7 +58,7 @@ function setupPage() {
 		<div id='inputDiv'>
 		</div>
 <button id='run'>
-    RUN5
+    RUN6
 </button>
 <div id="results"></div>
     </body>
