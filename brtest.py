@@ -87,16 +87,18 @@ def do_it(event):
     for line in tmp.split('\n'):
         tmp2 = list(line)
         tmp2.append('\n')
+        if line.find('/' + '*'):
+            alert(line + ' -- ' + str(tmp2))    
         whole_file.append(tmp2)
 	tmp_str = str(whole_file)
     
 	remove_comments_and_strings(whole_file)
 	detabify(whole_file)
 
-	output_str = '<pre>' + tmp_str + '\n'
+	output_str = '<code>' + tmp_str + '\n'
 	for line in whole_file:
 		output_str += "".join(line)
-	output_str += '</pre>'	
+	output_str += '</code>'	
     document['results'].text = ''
     document['results'] <= html.P(output_str)
 
