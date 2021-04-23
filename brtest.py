@@ -89,7 +89,7 @@ def do_it(event):
     for line in all_lines:
         whole_file.append(line + '\n')
         tmp_str += '1' + str(whole_file) + '\n'
-    for ind in len(whole_file):
+    for ind in range(len(whole_file)):
         whole_file[ind] = list(whole_file[ind])
         tmp_str += '4' + str(whole_file) + '\n'
     
