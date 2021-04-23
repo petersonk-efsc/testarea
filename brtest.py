@@ -94,15 +94,15 @@ def do_it(event):
     tmp_str += '4' + str(whole_file) + '\n'
     alert(str(whole_file))
     
-	remove_comments_and_strings(whole_file)
-	detabify(whole_file)
+    remove_comments_and_strings(whole_file)
+    detabify(whole_file)
 
-	output_str = '<pre><code>' + tmp_str + '\n'
-	for line in whole_file:
-		output_str += "".join(line)
-	for line in whole_file:
-		output_str += "".join(line).replace('<', '&lt;')
-	output_str += '</code></pre>'	
+    output_str = '<pre><code>' + tmp_str + '\n'
+    for line in whole_file:
+        output_str += "".join(line)
+    for line in whole_file:
+        output_str += "".join(line).replace('<', '&lt;')
+    output_str += '</code></pre>'	
     document['results'].text = ''
     document['results'] <= html.P(output_str)
 
