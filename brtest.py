@@ -87,9 +87,9 @@ def do_it(event):
     for line in tmp.split('\n'):
         tmp2 = list(line)
         tmp2.append('\n')
-        if line.find('/' + '*') >= 0:
-            alert(line + ' -- ' + str(tmp2))    
         whole_file.append(tmp2)
+        if line.find('/' + '*') >= 0:
+            alert(line + ' -- ' + str(tmp2) + '\n' + str(whole_file))    
 	tmp_str = str(whole_file)
     
 	remove_comments_and_strings(whole_file)
