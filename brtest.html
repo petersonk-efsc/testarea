@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+    <head>
+    <meta charset="utf-8"/>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/pure/2.0.3/pure-min.css" />
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.9.0/brython.min.js">
+    </script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.9.0/brython_stdlib.min.js">
+    </script>
+    <script type="text/python" src="brtest.py">
+	</script>
+	<script>
+/**************************************************************************/
+
+function setupPage() {
+	var file1Input = document.getElementById('file1');
+	file1Input.addEventListener('change', function(e) {
+		var file = file1Input.files[0];
+		var reader = new FileReader();
+
+		reader.onload = function(e) {
+			document.getElementById("file1Text").textContent = e.target.result;
+		};
+		reader.readAsBinaryString(file);
+	});
+	
+	var file2Input = document.getElementById('file2');
+	file2Input.addEventListener('change', function(e) {
+		var file = file2Input.files[0];
+		var reader = new FileReader();
+
+		reader.onload = function(e) {
+			document.getElementById("file2Text").textContent = e.target.result;
+		};
+		reader.readAsBinaryString(file);
+	});		
+}
+	</script>
+    </head>
+    <body onload="brython(1); setupPage();">
+<input type="file" id="file1">
+<div id="file1Text"></div>
+<input type="file" id="file2">
+<div id="file2Text"></div>
+<button id='run'>
+    RUN
+</button>
+<div id="results"></div>
+    </body>
+</html>
