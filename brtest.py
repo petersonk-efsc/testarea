@@ -95,7 +95,7 @@ def do_it(event):
 		output_str += "".join(line)
 	output_str += '</pre>'	
     document['results'].text = ''
-	document['results'] <= html.P(output_str)
+    document['results'] <= html.P(output_str)
 
 from browser import document, html
 document['run'].bind('click',do_it)
