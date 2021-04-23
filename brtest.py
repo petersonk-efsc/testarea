@@ -88,10 +88,11 @@ def do_it(event):
     all_lines = tmp.split('\n')
     for line in all_lines:
         whole_file.append(line + '\n')
-        tmp_str += '1' + str(whole_file) + '\n'
+    tmp_str += '1' + str(whole_file) + '\n'
     for ind in range(len(whole_file)):
         whole_file[ind] = list(whole_file[ind])
-        tmp_str += '4' + str(whole_file) + '\n'
+    tmp_str += '4' + str(whole_file) + '\n'
+    alert(str(whole_file))
     
 	remove_comments_and_strings(whole_file)
 	detabify(whole_file)
