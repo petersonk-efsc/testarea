@@ -27,18 +27,19 @@ function setupPage() {
 	for (f of files) {
 		fileInputId = 'fileInput' + count
 		fileSourceId = 'fileSource' + count
+		fileFnameId = 'fileName' + count
 
 		var inputElem = document.createElement("div");
 		inputElem.setAttribute('id', 'input' + count)
 		inputElem.setAttribute('class', 'inputDiv')
-		inputElem.innerHTML = f + ' <input type="file" id="' + fileInputId + '"><textarea id="' + fileSourceId + '" name="' + fileSourceId + '" class="fileText" rows="4" cols="50" wrap="off"></textarea>'
+		inputElem.innerHTML = f + ' <input type="file" id="' + fileInputId + '"><textarea id="' + fileSourceId + '" name="' + fileSourceId + '" class="fileText" rows="4" cols="50" wrap="off"></textarea> <input type="hidden" id="' + fileFnameId + '" name="' + fileFnameId + " value="' f + '">'
 		document.getElementById("inputDiv").appendChild(inputElem);
 
 		var fileInput = document.getElementById(fileInputId);
 		fileInput.addEventListener('change', function(e) {
 			var file = fileInput.files[0];
-			document.getElementById(fileSourceId).setAttribute('id', file.name);
 			alert(file.name);
+			document.getElementById(fileFnameId).value = file.name
 			var reader = new FileReader();
 
 			reader.onload = function(e) {
@@ -55,7 +56,7 @@ function setupPage() {
 		<div id='inputDiv'>
 		</div>
 <button id='run'>
-    RUN4
+    RUN5
 </button>
 <div id="results"></div>
     </body>
