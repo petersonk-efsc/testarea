@@ -36,7 +36,7 @@ function setupPage() {
 		var fileInput = document.getElementById(fileInputId);
 		fileInput.addEventListener('change', function(e) {
 			var file = fileInput.files[0];
-			inputElem.setAtrribute('fileRead', file.name);
+			inputElem.setAttribute('fileRead', file.name);
 			alert(file.name);
 			var reader = new FileReader();
 
