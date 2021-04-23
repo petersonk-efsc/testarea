@@ -84,6 +84,7 @@ def do_it(event):
     tmp = document['file1Text'].value
     alert('****\n' + tmp + '\n****')
     whole_file = []
+    tmp_str = ''
     for line in tmp.split('\n'):
         tmp2 = list(line)
         tmp2.append('\n')
