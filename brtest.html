@@ -37,7 +37,7 @@ function setupPage() {
 		var fileInput = document.getElementById(fileInputId);
 		fileInput.addEventListener('change', function(e) {
 			var file = fileInput.files[0];
-			inputElem.getElementById(fileSourceId).setAttribute('id', file.name);
+			document.getElementById(fileSourceId).setAttribute('id', file.name);
 			alert(file.name);
 			var reader = new FileReader();
 
@@ -55,7 +55,7 @@ function setupPage() {
 		<div id='inputDiv'>
 		</div>
 <button id='run'>
-    RUN3
+    RUN4
 </button>
 <div id="results"></div>
     </body>
