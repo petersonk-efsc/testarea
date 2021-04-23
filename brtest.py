@@ -1151,21 +1151,16 @@ def read_upload_file(src_file, dom_file_obj):
 
 
 def do_it(event):
-    tmp_msg = ''
-    for x in document.select('textarea.fileText'):        
-        tmp_msg += x.id + ' -- ' + document[x.id].value + '\n'
-    alert(tmp_msg)
-    
     style_summ = StyleSummary()
     style_summ.files = []
     
-    src_file = SrcFile()
-    src_file.filename = document['fileSource1Name'].value
-    read_upload_file(src_file, 'fileSource1')
-        
-    process_one_file(src_file)
-    
-    style_summ.files.append(src_file)
+    for single_file in document.select('textarea.fileText'):        
+        src_file = SrcFile()
+        src_file.filename = single_file_name = document[single_file.id + 'Name'].value
+        #  src_file.filename = document['fileSource1Name'].value
+        read_upload_file(src_file, single_file.id)        
+        process_one_file(src_file)
+        style_summ.files.append(src_file)
 
     output_str = '<pre>' + get_summary_results(style_summ, True, True) + '</pre>'
         
