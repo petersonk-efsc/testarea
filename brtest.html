@@ -23,7 +23,7 @@ function setupPage() {
 		var reader = new FileReader();
 
 		reader.onload = function(e) {
-			document.getElementById("file1Text").textContent = e.target.result;
+			document.getElementById("file1Text").value = e.target.result;
 		};
 		reader.readAsBinaryString(file);
 	});
@@ -34,7 +34,7 @@ function setupPage() {
 		var reader = new FileReader();
 
 		reader.onload = function(e) {
-			document.getElementById("file2Text").textContent = e.target.result;
+			document.getElementById("file2Text").value = e.target.result;
 		};
 		reader.readAsBinaryString(file);
 	});		
@@ -44,8 +44,10 @@ function setupPage() {
     <body onload="brython(1); setupPage();">
 <input type="file" id="file1">
 <textarea id="file1Text" name="file1Text" rows="4" cols="50" wrap="off"></textarea>
+<br/>
 <input type="file" id="file2">
 <textarea id="file2Text" name="file2Text" rows="4" cols="50" wrap="off"></textarea>
+<br/>
 <button id='run'>
     RUN
 </button>

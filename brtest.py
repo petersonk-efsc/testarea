@@ -80,7 +80,7 @@ def detabify(whole_file):
 from browser import document, html
 
 def do_it(event):
-    tmp = document['file1Text'].text
+    tmp = document['file1Text'].value
     whole_file = []
     for line in tmp.split('\n'):
         tmp2 = list(line)
