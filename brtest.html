@@ -21,7 +21,7 @@ function readFile(file, fileSourceId, fileFnameId) {
 	reader.addEventListener('load', function(e) {
 		document.getElementById(fileSourceId).value = e.target.result;
 		document.getElementById(fileFnameId).value = file.name;
-	};
+	});
 	reader.readAsBinaryString(file);
 }
 
@@ -58,7 +58,7 @@ function setupPage() {
 		<div id='inputDiv'>
 		</div>
 <button id='run'>
-    RUN4
+    RUN5
 </button>
 <div id="results"></div>
     </body>
