@@ -16,6 +16,15 @@
 	<script>
 /**************************************************************************/
 
+function readFile(file, fileSourceId, fileFnameId) {
+	const reader = new FileReader();
+	reader.addEventListener('load', function(e) {
+		document.getElementById(fileSourceId).value = e.target.result;
+		document.getElementById(fileFnameId).value = file.name;
+	};
+	reader.readAsBinaryString(file);
+}
+
 function setupPage() {
 	const urlParams = new URLSearchParams(window.location.search);
 	if (urlParams.has('files')) {
@@ -38,14 +47,7 @@ function setupPage() {
 
 		var fileInput = document.getElementById(fileInputId);
 		fileInput.addEventListener('change', function(e) {
-			var file = fileInput.files[0];
-			var reader = new FileReader();
-
-			reader.onload = function(e) {
-				document.getElementById(fileSourceId).value = e.target.result;
-				document.getElementById(fileFnameId).value = file.name
-			};
-			reader.readAsBinaryString(file);
+			readFile(fileInput.files[0], fileSouceId, fileFnameId);
 		});
 		count++;
 	}
