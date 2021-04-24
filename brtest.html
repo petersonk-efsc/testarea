@@ -28,9 +28,10 @@ function readFile(file, fileSourceId, fileFnameId, fileDispNameId) {
 
 function setupPage() {
 	const urlParams = new URLSearchParams(window.location.search);
+	var maxFiles = 1
 	if (urlParams.has('files')) {
 		files = urlParams.get('files').split(',')
-		document.getElementById('fileNameList').innerHTML = 'Upload files: ' + files;
+		document.getElementById('fileNameList').innerHTML = 'Upload files: ' + files;		
 	} else {
 		files = ["file.cpp"]
 	}
@@ -48,8 +49,8 @@ function setupPage() {
 		document.getElementById("inputDiv").appendChild(inputElem);
 
 		count++;
+		maxFiles++;
 	}
-	var maxFiles = count
 	var fileInput = document.getElementById('fileInput');
 	fileInput.addEventListener('change', function(e) {
 		count = 1;
@@ -71,7 +72,7 @@ function setupPage() {
 			<input type="file" id="fileInput" name="fileInput" multiple>
 		</div>
 <button id='run'>
-    Check Style
+    Check Style1
 </button>
 <div id="results"></div>
     </body>
