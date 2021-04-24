@@ -16,11 +16,12 @@
 	<script>
 /**************************************************************************/
 
-function readFile(file, fileSourceId, fileFnameId) {
+function readFile(file, fileSourceId, fileFnameId, fileDispNameId) {
 	const reader = new FileReader();
 	reader.addEventListener('load', function(e) {
 		document.getElementById(fileSourceId).value = e.target.result;
 		document.getElementById(fileFnameId).value = file.name;
+		document.getElementById(fileDispNameId).innerHTML = file.name;
 	});
 	reader.readAsBinaryString(file);
 }
@@ -29,33 +30,46 @@ function setupPage() {
 	const urlParams = new URLSearchParams(window.location.search);
 	if (urlParams.has('files')) {
 		files = urlParams.get('files').split(',')
+		document.getElementById('fileNameList').innerHTML = 'Upload files: ' + files;
 	} else {
 		files = ["file.cpp"]
 	}
 	count = 1
 	for (f of files) {
-		fileInputId = 'fileInput' + count
+		fileDispNameId = 'fileDispName' + count
 		fileSourceId = 'fileSource' + count
 		fileFnameId = 'fileSource' + count + 'Name'
 
 		var inputElem = document.createElement("div");
 		inputElem.setAttribute('id', 'input' + count)
-		inputElem.innerHTML = f + ' <input type="file" id="' + fileInputId + '" name="' + fileInputId + '">'
-			+ '<textarea id="' + fileSourceId + '" name="' + fileSourceId + '" class="fileText" rows="4" cols="50" wrap="off"></textarea>'
+		inputElem.innerHTML = '<span id="' + fileDispNameId + '">' + f + '</span>'
+			+ ' <textarea id="' + fileSourceId + '" name="' + fileSourceId + '" class="fileText" rows="4" cols="50" wrap="off"></textarea>'
 			+ '<input type="hidden" id="' + fileFnameId + '" name="' + fileFnameId + '" value="' + f + '">'
 		document.getElementById("inputDiv").appendChild(inputElem);
 
-		var fileInput = document.getElementById(fileInputId);
-		fileInput.addEventListener('change', function(e) {
-			readFile(fileInput.files[0], fileSouceId, fileFnameId);
-		});
 		count++;
 	}
+	var maxFiles = count
+	var fileInput = document.getElementById('fileInput');
+	fileInput.addEventListener('change', function(e) {
+		count = 1;
+		numFiles = maxFiles;
+		if (fileInput.files.length < numFiles) {
+			numFiles = fileInput.files.length;
+		}
+		for (var i = 0; i < numFiles; i++) {
+			readFile(fileInput.files[i], 'fileSource' + count, 'fileSource' + count + 'Name', 'fileDispName' + count);
+			count++;
+		}
+	});
 }
 	</script>
     </head>
-    <body onload="brython(1); setupPage();">
+    <!--body onload="brython(1); setupPage();"-->
+    <body onload="setupPage();">
 		<div id='inputDiv'>
+			<p id='fileNameList'>Upload files</p>
+			<input type="file" id="fileInput" name="fileInput" multiple>
 		</div>
 <button id='run'>
     RUN5
