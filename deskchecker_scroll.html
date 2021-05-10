@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+		<link rel="stylesheet" href="deskchecker.css">
+		<link rel="stylesheet" href="collapsible.css">
+
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		<script src="collapsible.js"></script>
+		<script src="files.js"></script>
+		<script>
+			modToXml = Module.cwrap('modToXml', 'string', ['string','number']);
+			resToXml = Module.cwrap('resToXml', 'string', ['string','number']);
+			xmlToRes = Module.cwrap('xmlToRes', 'string', ['string','number']);
+			getXmlResChar = Module.cwrap('getXmlResChar', 'number', ['number']);
+		</script>
+		<script src="deskchecker_scroll.js"></script>
+	</head>
+	<body style="width: 100%; margin: 0;" onload="setupPage()">
+		<div id="setup">
+			<h1>Desk Checker</h1>
+			<ul>
+				<li>Name (first name + last initial, such as karenp): <input type="text" id="loginName" name="loginName"/></li>
+				<li>(Optional) Previously Saved results (.dcr)<input type="file" id="fileResults" accept=".dcr*"></li>
+			</ul>
+			<button id="goBtn" name="goBtn" class="widebutton" onclick="loadDeskChecker()">Go</button>
+		</div>
+		<div id="deskchecker">
+		</div>
+	</body>
+</html>
