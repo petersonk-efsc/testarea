@@ -1167,8 +1167,8 @@ def get_summary_results(style_summ, replace_less=False, span_color=False):
     for cat in StyleSummary.CATEGORIES:
         summ_text += get_category_results(style_summ, cat[0], cat[1])
     final_grade = style_summ.score / style_summ.total * 100
-    summ_text = 'Style Score:' + str(style_summ.score) + '/' + str(style_summ.total) + '\n\n' \
-                + '------------------------------\n' + summ_text
+    summ_text = 'Style Score:' + str(style_summ.score) + '/' + str(style_summ.total) + '\n' \
+                + '------------------------------\n' + summ_text + "\n"
 
     for src_file in style_summ.files:
         summ_text += '******************************\n'
