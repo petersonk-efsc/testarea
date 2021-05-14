@@ -18,6 +18,8 @@ def read_upload_file(src_file, dom_file_obj):
     """TBD."""
     tmp = document[dom_file_obj].value
     all_lines = tmp.split('\n')
+    if all_lines[-1] == '':
+        all_lines.pop()
     for line in all_lines:
         one_line = Line()
         line_with_new = line + '\n'
