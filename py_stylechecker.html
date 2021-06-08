@@ -101,7 +101,9 @@ function setupPage() {
 }
 	</script>
     </head>
-    <body onload="brython(pythonpath:['https://github.com/petersonk-efsc/testarea/pycodestyle_lib', 'https://github.com/petersonk-efsc/testarea/pylint_lib']); setupPage();" style="margin: 5px">
+    <body onload="brython({pythonpath:['https://github.com/petersonk-efsc/testarea/pycodestyle_lib', 
+									  'https://github.com/petersonk-efsc/testarea/pylint_lib']}); 
+				  setupPage();" style="margin: 5px">
 		<div id='inputDiv'>
 			<p id='fileNameList'>Upload files</p>
 
