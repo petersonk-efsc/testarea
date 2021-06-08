@@ -5,16 +5,17 @@
 __author__ = 'Karen Peterson'
 __date__ = '6/15/2020'
 
-import sys
+# KP - don't need the following 3 lines when doing html version
+#import sys
 #sys.path.insert(0, './pycodestyle_lib')
-sys.path.insert(0, './pylint_lib')
+#sys.path.insert(0, './pylint_lib')
 
 import sys
 import os
 from pathlib import Path
 # from tkinter import Tk
 # from tkinter.filedialog import askopenfilename
-from pycodestyle_lib import pycodestyle
+import pycodestyle
 # import pylint.epylint as lint #KP
 # import web_epylint as lint
 
