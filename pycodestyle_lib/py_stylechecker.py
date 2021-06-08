@@ -20,7 +20,7 @@ def read_upload_file(src_file, dom_file_obj):
 
 
 def do_it(event):
-    style_summ = StyleSummary()
+    style_summ = PyStyleCheckData()
     style_summ.check_files = []
     
     for single_file in document.select('textarea.fileText'):        
