@@ -121,7 +121,7 @@ def run_pylint(file_to_check, web_pylint_opts, file_text):
     output = 'pylint style checker...\n'
     from io import StringIO
     lint_out = StringIO()
-    from pylint.lint import Run
+    #from pylint.lint import Run
     from web_run import WebRun
     # with open('sample.py', 'r') as input_file:
     #   lines = input_file.read()
