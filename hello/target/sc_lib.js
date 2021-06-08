@@ -577,27 +577,27 @@ export var classify_tokens = function (src_file) {
 export var check_capitalization = function (src_file) {
 	for (var tok of src_file.tokens) {
 		if (tok.tok_type == Token.FUNC_ID_TOKEN) {
-			if (tok.tok_str [0].isupper ()) {
+			if (tok.tok_str [0].toUpperCase() == tok.tok_str [0]) { // KP isupper ()) {
 				src_file.lines [tok.line].issues.append (tuple ([StyleSummary.ERROR_UPPER_LOWER_CASE, ('Function name must start with lowercase letter (' + tok.tok_str) + ')']));
 			}
 		}
 		else if (tok.tok_type == Token.VAR_ID_TOKEN) {
-			if (tok.tok_str [0].isupper ()) {
+			if (tok.tok_str [0].toUpperCase() == tok.tok_str [0]) { // KP .isupper ()) {
 				src_file.lines [tok.line].issues.append (tuple ([StyleSummary.ERROR_UPPER_LOWER_CASE, ('Variable name must start with lowercase letter (' + tok.tok_str) + ')']));
 			}
 		}
 		else if (tok.tok_type == Token.CLASS_ID_TOKEN) {
-			if (tok.tok_str [0].islower ()) {
+			if (tok.tok_str [0].toLowerCase() == tok.tok_str [0]) { // KP .islower ()) {
 				src_file.lines [tok.line].issues.append (tuple ([StyleSummary.ERROR_UPPER_LOWER_CASE, ('Class name must start with uppercase letter (' + tok.tok_str) + ')']));
 			}
 		}
 		else if (tok.tok_type == Token.STRUCT_ID_TOKEN) {
-			if (tok.tok_str [0].islower ()) {
+			if (tok.tok_str [0].toLowerCase() == tok.tok_str [0]) { // KP .islower ()) {
 				src_file.lines [tok.line].issues.append (tuple ([StyleSummary.ERROR_UPPER_LOWER_CASE, ('Struct name must start with uppercase letter (' + tok.tok_str) + ')']));
 			}
 		}
 		else if (tok.tok_type == Token.ENUM_ID_TOKEN) {
-			if (tok.tok_str [0].islower ()) {
+			if (tok.tok_str [0].toLowerCase() == tok.tok_str [0]) { // KP .islower ()) {
 				src_file.lines [tok.line].issues.append (tuple ([StyleSummary.ERROR_UPPER_LOWER_CASE, ('Enum name must start with uppercase letter (' + tok.tok_str) + ')']));
 			}
 		}
@@ -608,7 +608,7 @@ export var check_capitalization = function (src_file) {
 			}
 			var all_upper = true;
 			for (var let of tok.tok_str) {
-				if (let.islower ()) {
+				if (let.toLowerCase() == let) { // KP .islower ()) {
 					var all_upper = false;
 				}
 			}
