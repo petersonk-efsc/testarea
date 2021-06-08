@@ -607,11 +607,14 @@ export var check_capitalization = function (src_file) {
 				var msg = 'Enum value must be all uppercase';
 			}
 			var all_upper = true;
+			console.log('KP ' + tok.tok_str);
+			/*
 			for (var let of tok.tok_str) {
 				if (('a' <= let && let <= 'z')) {
 					var all_upper = false;
 				}
 			}
+			*/
 			if (!(all_upper)) {
 				src_file.lines [tok.line].issues.append (tuple ([StyleSummary.ERROR_UPPER_LOWER_CASE, ((msg + ' (') + tok.tok_str) + ')']));
 			}
