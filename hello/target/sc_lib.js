@@ -1,4 +1,4 @@
-// Transcrypt'ed from Python, 2021-06-08 19:36:41
+// Transcrypt'ed from Python, 2021-06-08 19:49:57
 var re = {};
 import {AssertionError, AttributeError, BaseException, DeprecationWarning, Exception, IndexError, IterableError, KeyError, NotImplementedError, RuntimeWarning, StopIteration, UserWarning, ValueError, Warning, __JsIterator__, __PyIterator__, __Terminal__, __add__, __and__, __call__, __class__, __envir__, __eq__, __floordiv__, __ge__, __get__, __getcm__, __getitem__, __getslice__, __getsm__, __gt__, __i__, __iadd__, __iand__, __idiv__, __ijsmod__, __ilshift__, __imatmul__, __imod__, __imul__, __in__, __init__, __ior__, __ipow__, __irshift__, __isub__, __ixor__, __jsUsePyNext__, __jsmod__, __k__, __kwargtrans__, __le__, __lshift__, __lt__, __matmul__, __mergefields__, __mergekwargtrans__, __mod__, __mul__, __ne__, __neg__, __nest__, __or__, __pow__, __pragma__, __pyUseJsNext__, __rshift__, __setitem__, __setproperty__, __setslice__, __sort__, __specialattrib__, __sub__, __super__, __t__, __terminal__, __truediv__, __withblock__, __xor__, abs, all, any, assert, bool, bytearray, bytes, callable, chr, copy, deepcopy, delattr, dict, dir, divmod, enumerate, filter, float, getattr, hasattr, input, int, isinstance, issubclass, len, list, map, max, min, object, ord, pow, print, property, py_TypeError, py_iter, py_metatype, py_next, py_reversed, py_typeof, range, repr, round, set, setattr, sorted, str, sum, tuple, zip} from './org.transcrypt.__runtime__.js';
 import * as __module_re__ from './re.js';
@@ -40,6 +40,40 @@ export var Line =  __class__ ('Line', [object], {
 		self.issue_types = [];
 	});}
 });
+export var NO_STMT = 0;
+export var CONTINUATION = 1;
+export var INCLUDE_ANGLE_STMT = 10;
+export var INCLUDE_QUOTE_STMT = 11;
+export var PREPROCESSOR_STMT = 12;
+export var USING_STMT = 13;
+export var START_BLOCK_STMT = 20;
+export var END_BLOCK_STMT = 21;
+export var FOR_STMT = 30;
+export var WHILE_STMT = 31;
+export var DO_STMT = 32;
+export var DO_WHILE_STMT = 33;
+export var IF_STMT = 40;
+export var ELSE_IF_STMT = 41;
+export var ELSE_STMT = 42;
+export var SWITCH_STMT = 43;
+export var CASE_STMT = 44;
+export var DEFAULT_STMT = 45;
+export var CONTINUE_STMT = 50;
+export var GOTO_STMT = 51;
+export var BREAK_STMT = 52;
+export var DECLARE_STMT = 60;
+export var DECLARE_CONST_STMT = 61;
+export var PROTOTYPE_STMT = 70;
+export var FUNC_HDR_STMT = 71;
+export var CLASS_STMT = 72;
+export var ACCESS_STMT = 73;
+export var STRUCT_STMT = 74;
+export var ENUM_STMT = 75;
+export var BLOCK_INTRO_STMT = 76;
+export var SEQUENCE_STMT = 80;
+export var RETURN_STMT = 81;
+export var EMPTY_STMT = 82;
+export var END_STMT = 83;
 export var Statement =  __class__ ('Statement', [object], {
 	__module__: __name__,
 	NO_STMT: 0,
@@ -607,14 +641,11 @@ export var check_capitalization = function (src_file) {
 				var msg = 'Enum value must be all uppercase';
 			}
 			var all_upper = true;
-			console.log('KP ' + tok.tok_str);
-			/*
 			for (var let of tok.tok_str) {
 				if (('a' <= let && let <= 'z')) {
 					var all_upper = false;
 				}
 			}
-			*/
 			if (!(all_upper)) {
 				src_file.lines [tok.line].issues.append (tuple ([StyleSummary.ERROR_UPPER_LOWER_CASE, ((msg + ' (') + tok.tok_str) + ')']));
 			}
