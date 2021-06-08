@@ -12,8 +12,8 @@ sys.path.insert(0, './pylint_lib')
 import sys
 import os
 from pathlib import Path
-from tkinter import Tk
-from tkinter.filedialog import askopenfilename
+# from tkinter import Tk
+# from tkinter.filedialog import askopenfilename
 import pycodestyle
 # import pylint.epylint as lint #KP
 # import web_epylint as lint
@@ -33,15 +33,16 @@ def file_len(fname):
 
 def get_config_file():
     """Get config file."""
-    root = Tk()
-    filepath = askopenfilename(
-        filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")]
-    )
-    root.destroy()
-    if not filepath:
-        print('No config file selected - exiting')
-        sys.exit(-1)
-    return filepath
+    ## root = Tk()
+    ## filepath = askopenfilename(
+    ##     filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")]
+    ## )
+    ## root.destroy()
+    ## if not filepath:
+    ##     print('No config file selected - exiting')
+    ##     sys.exit(-1)
+    ## return filepath
+    return ''
 
 
 def read_config_file():
