@@ -10,7 +10,7 @@
     <script
         src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.9.0/brython_stdlib.min.js">
     </script>
-    <script type="text/python" src="stylechecker.py">
+    <script type="text/python" src="py_stylechecker.py">
 	</script>
 	<script>
 /**************************************************************************/
@@ -34,10 +34,10 @@ function setupPage() {
 		document.getElementById('fileNameList').innerHTML = 'Upload files: ' + files;
 		matchFiles = true;
 	} else {
-		files = ["YourCode.cpp"];
+		files = ["your_code.py"];
 	}
 	if (files[0].endsWith(".java")) {
-		document.getElementById("lang").value = "java";
+		document.getElementById("lang").value = "p";
 	} else if (files[0].endsWith(".cs")) {
 		document.getElementById("lang").value = "cs";
 	} else {
