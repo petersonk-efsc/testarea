@@ -551,23 +551,23 @@ def check_capitalization(src_file):
     """TBD."""
     for tok in src_file.tokens:
         if tok.tok_type == Token.FUNC_ID_TOKEN:
-            if tok.tok_str[0].isupper():
+            if 'A' <= tok.tok_str[0] <= 'Z':
                 src_file.lines[tok.line].issues.append((StyleSummary.ERROR_UPPER_LOWER_CASE,
                                                         'Function name must start with lowercase letter (' + tok.tok_str + ')'))
         elif tok.tok_type == Token.VAR_ID_TOKEN:
-            if tok.tok_str[0].isupper():
+            if 'A' <= tok.tok_str[0] <= 'Z':
                 src_file.lines[tok.line].issues.append((StyleSummary.ERROR_UPPER_LOWER_CASE,
                                                        'Variable name must start with lowercase letter (' + tok.tok_str + ')'))
         elif tok.tok_type == Token.CLASS_ID_TOKEN:
-            if tok.tok_str[0].islower():
+            if 'a' <= tok.tok_str[0] <= 'z':
                 src_file.lines[tok.line].issues.append((StyleSummary.ERROR_UPPER_LOWER_CASE,
                                                         'Class name must start with uppercase letter (' + tok.tok_str + ')'))
         elif tok.tok_type == Token.STRUCT_ID_TOKEN:
-            if tok.tok_str[0].islower():
+            if 'a' <= tok.tok_str[0] <= 'z':
                 src_file.lines[tok.line].issues.append((StyleSummary.ERROR_UPPER_LOWER_CASE,
                                                         'Struct name must start with uppercase letter (' + tok.tok_str + ')'))
         elif tok.tok_type == Token.ENUM_ID_TOKEN:
-            if tok.tok_str[0].islower():
+            if 'a' <= tok.tok_str[0] <= 'z':
                 src_file.lines[tok.line].issues.append((StyleSummary.ERROR_UPPER_LOWER_CASE,
                                                         'Enum name must start with uppercase letter (' + tok.tok_str + ')'))
         elif tok.tok_type in [Token.CONSTANT_ID_TOKEN, Token.ENUM_VALUE_ID_TOKEN]:
@@ -576,7 +576,7 @@ def check_capitalization(src_file):
                 msg = 'Enum value must be all uppercase'
             all_upper = True
             for let in tok.tok_str:
-                if let.islower():
+                if 'a' <= let <= 'z':
                     all_upper = False
             if not all_upper:
                 src_file.lines[tok.line].issues.append((StyleSummary.ERROR_UPPER_LOWER_CASE,

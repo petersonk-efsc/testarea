@@ -1,4 +1,4 @@
-// Transcrypt'ed from Python, 2021-06-08 17:29:27
+// Transcrypt'ed from Python, 2021-06-08 19:36:41
 var re = {};
 import {AssertionError, AttributeError, BaseException, DeprecationWarning, Exception, IndexError, IterableError, KeyError, NotImplementedError, RuntimeWarning, StopIteration, UserWarning, ValueError, Warning, __JsIterator__, __PyIterator__, __Terminal__, __add__, __and__, __call__, __class__, __envir__, __eq__, __floordiv__, __ge__, __get__, __getcm__, __getitem__, __getslice__, __getsm__, __gt__, __i__, __iadd__, __iand__, __idiv__, __ijsmod__, __ilshift__, __imatmul__, __imod__, __imul__, __in__, __init__, __ior__, __ipow__, __irshift__, __isub__, __ixor__, __jsUsePyNext__, __jsmod__, __k__, __kwargtrans__, __le__, __lshift__, __lt__, __matmul__, __mergefields__, __mergekwargtrans__, __mod__, __mul__, __ne__, __neg__, __nest__, __or__, __pow__, __pragma__, __pyUseJsNext__, __rshift__, __setitem__, __setproperty__, __setslice__, __sort__, __specialattrib__, __sub__, __super__, __t__, __terminal__, __truediv__, __withblock__, __xor__, abs, all, any, assert, bool, bytearray, bytes, callable, chr, copy, deepcopy, delattr, dict, dir, divmod, enumerate, filter, float, getattr, hasattr, input, int, isinstance, issubclass, len, list, map, max, min, object, ord, pow, print, property, py_TypeError, py_iter, py_metatype, py_next, py_reversed, py_typeof, range, repr, round, set, setattr, sorted, str, sum, tuple, zip} from './org.transcrypt.__runtime__.js';
 import * as __module_re__ from './re.js';
@@ -577,27 +577,27 @@ export var classify_tokens = function (src_file) {
 export var check_capitalization = function (src_file) {
 	for (var tok of src_file.tokens) {
 		if (tok.tok_type == Token.FUNC_ID_TOKEN) {
-			if (tok.tok_str [0].toUpperCase() == tok.tok_str [0]) { // KP isupper ()) {
+			if (('A' <= tok.tok_str [0] && tok.tok_str [0] <= 'Z')) {
 				src_file.lines [tok.line].issues.append (tuple ([StyleSummary.ERROR_UPPER_LOWER_CASE, ('Function name must start with lowercase letter (' + tok.tok_str) + ')']));
 			}
 		}
 		else if (tok.tok_type == Token.VAR_ID_TOKEN) {
-			if (tok.tok_str [0].toUpperCase() == tok.tok_str [0]) { // KP .isupper ()) {
+			if (('A' <= tok.tok_str [0] && tok.tok_str [0] <= 'Z')) {
 				src_file.lines [tok.line].issues.append (tuple ([StyleSummary.ERROR_UPPER_LOWER_CASE, ('Variable name must start with lowercase letter (' + tok.tok_str) + ')']));
 			}
 		}
 		else if (tok.tok_type == Token.CLASS_ID_TOKEN) {
-			if (tok.tok_str [0].toLowerCase() == tok.tok_str [0]) { // KP .islower ()) {
+			if (('a' <= tok.tok_str [0] && tok.tok_str [0] <= 'z')) {
 				src_file.lines [tok.line].issues.append (tuple ([StyleSummary.ERROR_UPPER_LOWER_CASE, ('Class name must start with uppercase letter (' + tok.tok_str) + ')']));
 			}
 		}
 		else if (tok.tok_type == Token.STRUCT_ID_TOKEN) {
-			if (tok.tok_str [0].toLowerCase() == tok.tok_str [0]) { // KP .islower ()) {
+			if (('a' <= tok.tok_str [0] && tok.tok_str [0] <= 'z')) {
 				src_file.lines [tok.line].issues.append (tuple ([StyleSummary.ERROR_UPPER_LOWER_CASE, ('Struct name must start with uppercase letter (' + tok.tok_str) + ')']));
 			}
 		}
 		else if (tok.tok_type == Token.ENUM_ID_TOKEN) {
-			if (tok.tok_str [0].toLowerCase() == tok.tok_str [0]) { // KP .islower ()) {
+			if (('a' <= tok.tok_str [0] && tok.tok_str [0] <= 'z')) {
 				src_file.lines [tok.line].issues.append (tuple ([StyleSummary.ERROR_UPPER_LOWER_CASE, ('Enum name must start with uppercase letter (' + tok.tok_str) + ')']));
 			}
 		}
@@ -608,7 +608,7 @@ export var check_capitalization = function (src_file) {
 			}
 			var all_upper = true;
 			for (var let of tok.tok_str) {
-				if (let.toLowerCase() == let) { // KP .islower ()) {
+				if (('a' <= let && let <= 'z')) {
 					var all_upper = false;
 				}
 			}
