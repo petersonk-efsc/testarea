@@ -34,7 +34,7 @@ def do_it(event):
     style_summ = StyleSummary()
     style_summ.files = []
     
-    for single_file in document.getElementsByClassName('textarea.fileText'):        
+    for single_file in document.getElementsByClassName('fileText'):        
         src_file = SrcFile()
         src_file.filename = single_file_name = document.getElementById (single_file.id + 'Name').value # document[single_file.id + 'Name'].value
         #  src_file.filename = document['fileSource1Name'].value
