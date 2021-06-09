@@ -26,16 +26,22 @@ def read_upload_file(src_file, dom_file_obj):
         line_list = list(line_with_new)
         detabify(line_list)
         one_line.orig_line = line_list
-        one_line.clean_line = line_list.copy()
+        # one_line.clean_line = line_list.copy()
+        one_line.clean_line = []
+        for letter in line_list:
+            one_line.clean_line.append(letter)
         src_file.lines.append(one_line)
 
 
 def do_it(event):
     style_summ = StyleSummary()
     style_summ.files = []
+    print(document.getElementById('fileText'))
     
     for single_file in document.getElementsByClassName('fileText'):        
         src_file = SrcFile()
+        print(single_file)
+        print(single_file.id)
         src_file.filename = document.getElementById (single_file.id + 'Name').value # document[single_file.id + 'Name'].value
         #  src_file.filename = document['fileSource1Name'].value
         read_upload_file(src_file, single_file.id)        
