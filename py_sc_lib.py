@@ -185,7 +185,7 @@ def process_one_file(file_to_check):
     print('KP process', file_to_check.filename)
     output = '-------------------------------------------\n'
     output += 'Checking ' + file_to_check.filename + '\n\n'
-    output += run_pylint(file_to_check.filename, file_to_check.web_pylint_opts, file_to_check.file_text)
+    # output += run_pylint(file_to_check.filename, file_to_check.web_pylint_opts, file_to_check.file_text)
     output += run_pycodestyle([file_to_check.filename], file_to_check.file_text)
     output += '\n-------------------------------------------\n'
     file_to_check.results = output
@@ -193,7 +193,7 @@ def process_one_file(file_to_check):
     file_to_check.line_count = file_to_check.file_text.count('\n') + 1 # Do I need + 1?
 
 
-def get_summary_results(pystyle_data):
+def get_summary_results(pystyle_data, a, b):
     """Main program."""
     pystyle_data.total_err_count = 0
     pystyle_data.total_file_count = 0
