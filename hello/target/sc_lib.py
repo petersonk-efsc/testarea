@@ -46,48 +46,6 @@ class Line:
         self.issue_types = []
 
 
-NO_STMT = 0
-CONTINUATION = 1
-
-INCLUDE_ANGLE_STMT = 10
-INCLUDE_QUOTE_STMT = 11
-PREPROCESSOR_STMT = 12
-USING_STMT = 13
-
-START_BLOCK_STMT = 20
-END_BLOCK_STMT = 21
-
-FOR_STMT = 30
-WHILE_STMT = 31
-DO_STMT = 32
-DO_WHILE_STMT = 33
-
-IF_STMT = 40
-ELSE_IF_STMT = 41
-ELSE_STMT = 42
-SWITCH_STMT = 43
-CASE_STMT = 44
-DEFAULT_STMT = 45
-
-CONTINUE_STMT = 50
-GOTO_STMT = 51
-BREAK_STMT = 52
-
-DECLARE_STMT = 60
-DECLARE_CONST_STMT = 61
-
-PROTOTYPE_STMT = 70
-FUNC_HDR_STMT = 71
-CLASS_STMT = 72
-ACCESS_STMT = 73
-STRUCT_STMT = 74
-ENUM_STMT = 75
-BLOCK_INTRO_STMT = 76  # namespace, something like func header, but not function
-
-SEQUENCE_STMT = 80
-RETURN_STMT = 81
-EMPTY_STMT = 82
-END_STMT = 83
 class Statement:
     """TBD."""
     NO_STMT = 0
@@ -133,20 +91,20 @@ class Statement:
     EMPTY_STMT = 82
     END_STMT = 83
 
-    KEYWORD_DICT = {'using': (USING_STMT, True, ';', False),
-                    '{': (START_BLOCK_STMT, False, '', False),
-                    '}': (END_BLOCK_STMT, False, '', False),
-                    'for': (FOR_STMT, True, ')', True),
-                    'do': (DO_STMT, False, '', False),
-                    'if': (IF_STMT, True, ')', True),
-                    'switch': (SWITCH_STMT, True, ')', True),
-                    'case': (CASE_STMT, True, ':', False),
-                    'default': (DEFAULT_STMT, True, ':', False),
-                    'continue': (CONTINUE_STMT, True, ';', False),
-                    'goto': (GOTO_STMT, True, ';', False),
-                    'break': (BREAK_STMT, True, ';', False),
-                    'return': (RETURN_STMT, True, ';', False),
-                    ';': (EMPTY_STMT, False, '', False)
+    KEYWORD_DICT = {'using': (13, True, ';', False),
+                    '{': (20, False, '', False),
+                    '}': (21, False, '', False),
+                    'for': (30, True, ')', True),
+                    'do': (32, False, '', False),
+                    'if': (40, True, ')', True),
+                    'switch': (43, True, ')', True),
+                    'case': (44, True, ':', False),
+                    'default': (45, True, ':', False),
+                    'continue': (50, True, ';', False),
+                    'goto': (51, True, ';', False),
+                    'break': (52, True, ';', False),
+                    'return': (81, True, ';', False),
+                    ';': (82, False, '', False)
                     }
 
     def __init__(self):
@@ -617,7 +575,8 @@ def check_capitalization(src_file):
             if tok.tok_type == Token.ENUM_VALUE_ID_TOKEN:
                 msg = 'Enum value must be all uppercase'
             all_upper = True
-            for let in tok.tok_str:
+            for i in range(len(tok.tok_str)):
+                let = tok.tok_str[i]
                 if 'a' <= let <= 'z':
                     all_upper = False
             if not all_upper:
