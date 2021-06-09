@@ -16,7 +16,7 @@ from sc_lib import get_summary_results
 
 def read_upload_file(src_file, dom_file_obj):
     """TBD."""
-    tmp = document.getElementById ('dom_file_obj') .value # document[dom_file_obj].value
+    tmp = document.getElementById (dom_file_obj) .value # document[dom_file_obj].value
     all_lines = tmp.split('\n')
     if all_lines[-1] == '':
         all_lines.pop()
@@ -36,7 +36,7 @@ def do_it(event):
     
     for single_file in document.getElementsByClassName('fileText'):        
         src_file = SrcFile()
-        src_file.filename = single_file_name = document.getElementById (single_file.id + 'Name').value # document[single_file.id + 'Name'].value
+        src_file.filename = document.getElementById (single_file.id + 'Name').value # document[single_file.id + 'Name'].value
         #  src_file.filename = document['fileSource1Name'].value
         read_upload_file(src_file, single_file.id)        
         process_one_file(src_file)
