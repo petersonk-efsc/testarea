@@ -575,9 +575,8 @@ def check_capitalization(src_file):
             if tok.tok_type == Token.ENUM_VALUE_ID_TOKEN:
                 msg = 'Enum value must be all uppercase'
             all_upper = True
-            for i in range(len(tok.tok_str)):
-                let = tok.tok_str[i]
-                if 'a' <= let <= 'z':
+            for letter in tok.tok_str:
+                if 'a' <= letter <= 'z':
                     all_upper = False
             if not all_upper:
                 src_file.lines[tok.line].issues.append((StyleSummary.ERROR_UPPER_LOWER_CASE,
