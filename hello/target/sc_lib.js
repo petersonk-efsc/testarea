@@ -1,4 +1,4 @@
-// Transcrypt'ed from Python, 2021-06-08 20:09:29
+// Transcrypt'ed from Python, 2021-06-08 20:15:06
 var re = {};
 import {AssertionError, AttributeError, BaseException, DeprecationWarning, Exception, IndexError, IterableError, KeyError, NotImplementedError, RuntimeWarning, StopIteration, UserWarning, ValueError, Warning, __JsIterator__, __PyIterator__, __Terminal__, __add__, __and__, __call__, __class__, __envir__, __eq__, __floordiv__, __ge__, __get__, __getcm__, __getitem__, __getslice__, __getsm__, __gt__, __i__, __iadd__, __iand__, __idiv__, __ijsmod__, __ilshift__, __imatmul__, __imod__, __imul__, __in__, __init__, __ior__, __ipow__, __irshift__, __isub__, __ixor__, __jsUsePyNext__, __jsmod__, __k__, __kwargtrans__, __le__, __lshift__, __lt__, __matmul__, __mergefields__, __mergekwargtrans__, __mod__, __mul__, __ne__, __neg__, __nest__, __or__, __pow__, __pragma__, __pyUseJsNext__, __rshift__, __setitem__, __setproperty__, __setslice__, __sort__, __specialattrib__, __sub__, __super__, __t__, __terminal__, __truediv__, __withblock__, __xor__, abs, all, any, assert, bool, bytearray, bytes, callable, chr, copy, deepcopy, delattr, dict, dir, divmod, enumerate, filter, float, getattr, hasattr, input, int, isinstance, issubclass, len, list, map, max, min, object, ord, pow, print, property, py_TypeError, py_iter, py_metatype, py_next, py_reversed, py_typeof, range, repr, round, set, setattr, sorted, str, sum, tuple, zip} from './org.transcrypt.__runtime__.js';
 import * as __module_re__ from './re.js';
@@ -120,7 +120,7 @@ export var StyleSummary =  __class__ ('StyleSummary', [object], {
 	ERROR_DECLARATIONS: 11,
 	ERROR_FUNC_ORDER: 12,
 	ERROR_OTHER: 13,
-	CATEGORIES: tuple ([tuple ([[ERROR_FILE_NO_COMMENT, ERROR_FILE_COMMENT], 'File Comments']), tuple ([[ERROR_FUNCTION_NO_COMMENT, ERROR_FUNCTION_COMMENT], 'Method/Function Comments']), tuple ([[ERROR_PACKAGE_INCLUDE], 'Package/Includes']), tuple ([[ERROR_GLOBAL_GOTO], 'Globals/continue/breaks']), tuple ([[ERROR_UPPER_LOWER_CASE], 'Proper upper/lowercases']), tuple ([[ERROR_INDENTATION], 'Proper indentation']), tuple ([[ERROR_SPACING], 'Proper spacing']), tuple ([[ERROR_BRACES], 'Proper braces']), tuple ([[ERROR_DECLARATIONS], 'Proper declarations']), tuple ([[ERROR_FUNC_ORDER], 'Proper method/function order']), tuple ([[ERROR_OTHER], 'Other issues'])]),
+	CATEGORIES: tuple ([tuple ([[1, 2], 'File Comments']), tuple ([[3, 4], 'Method/Function Comments']), tuple ([[5], 'Package/Includes']), tuple ([[6], 'Globals/continue/breaks']), tuple ([[7], 'Proper upper/lowercases']), tuple ([[8], 'Proper indentation']), tuple ([[9], 'Proper spacing']), tuple ([[10], 'Proper braces']), tuple ([[11], 'Proper declarations']), tuple ([[12], 'Proper method/function order']), tuple ([[13], 'Other issues'])]),
 	get __init__ () {return __get__ (this, function (self) {
 		self.files = [];
 		self.issues = dict ({});

@@ -155,17 +155,17 @@ class StyleSummary:
     ERROR_FUNC_ORDER = 12;
     ERROR_OTHER = 13;
 
-    CATEGORIES = (([ERROR_FILE_NO_COMMENT, ERROR_FILE_COMMENT], 'File Comments'),
-                  ([ERROR_FUNCTION_NO_COMMENT, ERROR_FUNCTION_COMMENT], 'Method/Function Comments'),
-                  ([ERROR_PACKAGE_INCLUDE], 'Package/Includes'),
-                  ([ERROR_GLOBAL_GOTO], 'Globals/continue/breaks'),
-                  ([ERROR_UPPER_LOWER_CASE], 'Proper upper/lowercases'),
-                  ([ERROR_INDENTATION], 'Proper indentation'),
-                  ([ERROR_SPACING], 'Proper spacing'),
-                  ([ERROR_BRACES], 'Proper braces'),
-                  ([ERROR_DECLARATIONS], 'Proper declarations'),
-                  ([ERROR_FUNC_ORDER], 'Proper method/function order'),
-                  ([ERROR_OTHER], 'Other issues'))
+    CATEGORIES = (([1, 2], 'File Comments'),
+                  ([3, 4], 'Method/Function Comments'),
+                  ([5], 'Package/Includes'),
+                  ([6], 'Globals/continue/breaks'),
+                  ([7], 'Proper upper/lowercases'),
+                  ([8], 'Proper indentation'),
+                  ([9], 'Proper spacing'),
+                  ([10], 'Proper braces'),
+                  ([11], 'Proper declarations'),
+                  ([12], 'Proper method/function order'),
+                  ([13], 'Other issues'))
 
     def __init__(self):
         """Constructor."""
