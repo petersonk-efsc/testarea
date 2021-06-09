@@ -26,9 +26,11 @@ export var read_upload_file = function (src_file, dom_file_obj) {
 	}
 };
 export var do_it = function (event) {
+	alert('at do it');
 	var style_summ = StyleSummary ();
 	style_summ.files = [];
-	console.log(document.getElementsByClassName ('fileText'));
+	alert('in here');
+	alert(document.getElementsByClassName ('fileText'));
 	for (var single_file of document.getElementsByClassName ('fileText')) {
 		var src_file = SrcFile ();
 		src_file.filename = document.getElementById (single_file.id + 'Name').value;
