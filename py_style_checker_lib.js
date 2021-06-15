@@ -4,6 +4,8 @@ def read_upload_file(src_file, dom_file_obj):
     tmp = document.getElementById(dom_file_obj).value
     src_file.lines = tmp
     src_file.lines_list = tmp.split('\\n')
+    if src_file.lines_list[-1] == '':
+        src_file.lines_list.pop()
     for ind in range(len(src_file.lines_list)):
         src_file.lines_list[ind] += '\\n'
 
