@@ -4,12 +4,6 @@
     <meta charset="utf-8"/>
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/pure/2.0.3/pure-min.css" />
-    <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.9.0/brython.min.js">
-    </script>
-    <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.9.0/brython_stdlib.min.js">
-    </script>
     <script type="text/javascript" src="py_sc_lib.js"></script>
     <script type="text/javascript" src="py_style_checker_lib.js"></script>
     <script type="text/javascript" src="py_web_run_lib.js"></script>
@@ -35,15 +29,15 @@ document.getElementById("checkBtn").disabled = true;
       await pyodide.runPythonAsync(`
         import pkg_resources
         import micropip # runPythonAsync will load micropip automatically
-        await micropip.install("./PyPiWhiFiles/pycodestyle-2.7.0-py2.py3-none-any.whl")
-        await micropip.install("./PyPiWhiFiles/colorama-0.4.4-py2.py3-none-any.whl")
-        await micropip.install("./PyPiWhiFiles/isort-5.8.0-py3-none-any.whl")
-        await micropip.install("./PyPiWhiFiles/lazy_object_proxy-1.6.0-cp39-cp39-win_amd64.whl")
-        await micropip.install("./PyPiWhiFiles/mccabe-0.6.1-py2.py3-none-any.whl")
-        await micropip.install("./PyPiWhiFiles/toml-0.10.2-py2.py3-none-any.whl")
-        await micropip.install("./PyPiWhiFiles/wrapt-1.12.1-cp310-cp310-win_amd64.whl")
-        await micropip.install("./PyPiWhiFiles/astroid-2.5.6-py3-none-any.whl")
-        await micropip.install("./testarea/PyPiWhiFiles/pylint-2.8.3-py3-none-any.whl")
+        await micropip.install("https://petersonk-efsc.github.io/testarea/PyPiWhiFiles/pycodestyle-2.7.0-py2.py3-none-any.whl")
+        await micropip.install("https://petersonk-efsc.github.io/testarea/PyPiWhiFiles/colorama-0.4.4-py2.py3-none-any.whl")
+        await micropip.install("https://petersonk-efsc.github.io/testarea/PyPiWhiFiles/isort-5.8.0-py3-none-any.whl")
+        await micropip.install("https://petersonk-efsc.github.io/testarea/PyPiWhiFiles/lazy_object_proxy-1.6.0-cp39-cp39-win_amd64.whl")
+        await micropip.install("https://petersonk-efsc.github.io/testarea/PyPiWhiFiles/mccabe-0.6.1-py2.py3-none-any.whl")
+        await micropip.install("https://petersonk-efsc.github.io/testarea/PyPiWhiFiles/toml-0.10.2-py2.py3-none-any.whl")
+        await micropip.install("https://petersonk-efsc.github.io/testarea/PyPiWhiFiles/wrapt-1.12.1-cp310-cp310-win_amd64.whl")
+        await micropip.install("https://petersonk-efsc.github.io/testarea/PyPiWhiFiles/astroid-2.5.6-py3-none-any.whl")
+        await micropip.install("https://petersonk-efsc.github.io/testarea/PyPiWhiFiles/pylint-2.8.3-py3-none-any.whl")
       `);
 	  await pyodide.runPythonAsync(pyWebPylinterLibCode);
 	  await pyodide.runPythonAsync(pyWebRunLibCode);
