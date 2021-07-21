@@ -21,8 +21,9 @@ class Token:
     ENUM_ID_TOKEN = 6
     ENUM_VALUE_ID_TOKEN = 7
     CONSTANT_ID_TOKEN = 8
-    NUMBER_TOKEN = 9
-    ID_TOKEN = 10
+    TYPEDEF_ID_TOKEN = 9
+    NUMBER_TOKEN = 10
+    ID_TOKEN = 11
 
     def __init__(self):
         """Constructor."""
@@ -63,6 +64,7 @@ class Statement:
     WHILE_STMT = 31
     DO_STMT = 32
     DO_WHILE_STMT = 33
+    TRY_CATCH_STMT = 34
 
     IF_STMT = 40
     ELSE_IF_STMT = 41
@@ -77,19 +79,23 @@ class Statement:
 
     DECLARE_STMT = 60
     DECLARE_CONST_STMT = 61
+    INIT_STATIC_VAR_STMT = 62
+    TYPEDEF_STMT = 63
 
     PROTOTYPE_STMT = 70
     FUNC_HDR_STMT = 71
-    CLASS_STMT = 72
-    ACCESS_STMT = 73
-    STRUCT_STMT = 74
-    ENUM_STMT = 75
-    BLOCK_INTRO_STMT = 76  # namespace, something like func header, but not function
+    CONSTRUCT_FUNC_HDR_STMT = 72  # or destructor
+    CLASS_STMT = 73
+    ACCESS_STMT = 74
+    STRUCT_STMT = 75
+    ENUM_STMT = 76
+    BLOCK_INTRO_STMT = 77  # namespace, something like func header, but not function
 
     SEQUENCE_STMT = 80
     RETURN_STMT = 81
-    EMPTY_STMT = 82
-    END_STMT = 83
+    THROW_STMT = 82
+    EMPTY_STMT = 83
+    END_STMT = 84
 
     KEYWORD_DICT = {'using': (USING_STMT, True, ';', False),
                     '{': (START_BLOCK_STMT, False, '', False),
@@ -104,6 +110,7 @@ class Statement:
                     'goto': (GOTO_STMT, True, ';', False),
                     'break': (BREAK_STMT, True, ';', False),
                     'return': (RETURN_STMT, True, ';', False),
+                    'throw': (THROW_STMT, True, ';', False),
                     ';': (EMPTY_STMT, False, '', False)
                     }
 
@@ -252,7 +259,8 @@ def tokenize_stmts(src_file):
                       '*=', '/=', '+=', '-=', '&=', '^=', '|=']
     # C++, may need to account for '->*'
 
-    for line_num in range(len(src_file.lines)):
+    line_num = 0
+    while line_num < len(src_file.lines):
         line = src_file.lines[line_num].clean_line
         src_file.lines[line_num].first_token = token_cnt
         line_len = len(line)
@@ -270,6 +278,18 @@ def tokenize_stmts(src_file):
                     tok_chars.append(line[col_num])
                     col_num += 1
                 new_tok.tok_str = ''.join(tok_chars)
+                if new_tok.tok_str == 'operator':
+                    while line[col_num] != '(':
+                        new_tok.tok_str += line[col_num]
+                        col_num += 1
+                        while col_num >= len(line):
+                            src_file.lines[line_num].last_token = token_cnt + 1
+                            col_num = 0
+                            line_num += 1
+                            line = src_file.lines[line_num].clean_line
+                            src_file.lines[line_num].first_token = token_cnt + 1
+                            line_len = len(line)
+                    new_tok.tok_str = new_tok.tok_str.rstrip()
                 src_file.tokens.append(new_tok)
                 token_cnt += 1
             elif line[col_num].isspace():
@@ -289,6 +309,35 @@ def tokenize_stmts(src_file):
                 new_tok.tok_str = ''.join(tok_chars)
                 src_file.tokens.append(new_tok)
                 token_cnt += 1
+            elif line[col_num] == '>' and line[col_num+1] == '>':  # >> operator versus nested templates
+                in_template = False
+                done = False
+                tmp_tok_ind = len(src_file.tokens) - 1
+                tmp_tok = src_file.tokens[tmp_tok_ind]
+                while (not done) and (tmp_tok_ind >= 0):
+                    if tmp_tok.tok_str == '<':
+                        done = True
+                        in_template = True
+                    elif tmp_tok.tok_str in ['{', '}', ';']:
+                        done = True
+                    elif (tmp_tok.tok_type != Token.ID_TOKEN) and (tmp_tok.tok_str not in [',', '>']):
+                        done = True
+                    tmp_tok_ind -= 1
+                    tmp_tok = src_file.tokens[tmp_tok_ind]
+                new_tok = Token()
+                tok_chars = []
+                tok_chars.append(line[col_num])
+                new_tok.line = line_num
+                new_tok.col = col_num
+                new_tok.tok_type = Token.OP_TOKEN
+                new_tok.ind = token_cnt
+                if not in_template:
+                    tok_chars.append(line[col_num + 1])
+                    col_num += 1
+                col_num += 1
+                new_tok.tok_str = ''.join(tok_chars)
+                src_file.tokens.append(new_tok)
+                token_cnt += 1
             else:
                 new_tok = Token()
                 tok_chars = []
@@ -305,6 +354,7 @@ def tokenize_stmts(src_file):
                 src_file.tokens.append(new_tok)
                 token_cnt += 1
         src_file.lines[line_num].last_token = token_cnt
+        line_num += 1
 
 
 def get_next_token(tokens, token_ind):
@@ -394,6 +444,11 @@ def classify_tokens(src_file):
             new_stmt.stmt_type = key_info[0]
             if key_info[1]:
                 tok_ind = continue_till_char(tokens, tok_ind, key_info[2], key_info[3])
+        elif curr_tok_str in ['try', 'catch']:
+            new_stmt.stmt_type = Statement.TRY_CATCH_STMT
+            next_tok = get_next_token(tokens, tok_ind)
+            if next_tok.tok_str == '(':
+                tok_ind = continue_till_char(tokens, tok_ind, ')', True)
         elif curr_tok_str == '#':
             next_tok = get_next_token(tokens, tok_ind)
             if next_tok.tok_str == 'include':
@@ -408,6 +463,9 @@ def classify_tokens(src_file):
                 tok_ind = continue_till_char(tokens, tok_ind, end_char)
             else:
                 new_stmt.stmt_type = Statement.PREPROCESSOR_STMT
+                while tok_ind < len(tokens) and tokens[tok_ind].line == curr_tok.line:
+                    tok_ind += 1
+                tok_ind -= 1
         elif curr_tok.tok_str == 'while':
             new_stmt.stmt_type = Statement.WHILE_STMT
             tmp_tok = get_prev_token(tokens, tok_ind)
@@ -444,11 +502,20 @@ def classify_tokens(src_file):
                 # if 2 tokens before =, then declaration, last non [] token before = is variable name
                 if curr_tok.tok_type == Token.ID_TOKEN:
                     found_const = False
+                    found_typedef = False
+                    found_static_var = False
                     var_type = Token.VAR_ID_TOKEN
-                    for ind in range(curr_tok.ind, small_tok.ind):
-                        if tokens[ind].tok_str == 'const':
-                            var_type = Token.CONSTANT_ID_TOKEN
-                            found_const = True
+                    if curr_tok.tok_str == 'typedef':
+                        found_typedef = True
+                        var_type = Token.TYPEDEF_ID_TOKEN
+                    else:
+                        for ind in range(curr_tok.ind, small_tok.ind):
+                            if tokens[ind].tok_str == 'const':
+                                var_type = Token.CONSTANT_ID_TOKEN
+                                found_const = True
+                            elif tokens[ind].tok_str == '::':
+                                found_static_var = True
+
                     next_tok = get_next_token(tokens, tok_ind)
                     next_tok_ind = next_tok.ind
                     while next_tok.tok_str in ['<', '[']:
@@ -463,6 +530,10 @@ def classify_tokens(src_file):
                     if next_tok.tok_type == Token.ID_TOKEN:
                         if found_const:
                             new_stmt.stmt_type = Statement.DECLARE_CONST_STMT
+                        elif found_typedef:
+                            new_stmt.stmt_type = Statement.TYPEDEF_STMT
+                        elif found_static_var:
+                            new_stmt.stmt_type = Statement.INIT_STATIC_VAR_STMT
                         else:
                             new_stmt.stmt_type = Statement.DECLARE_STMT
                         finding_vars = True
@@ -504,14 +575,30 @@ def classify_tokens(src_file):
                     src_file.num_functions += 1
                     new_stmt.stmt_type = Statement.FUNC_HDR_STMT
                     fun_name_tok.tok_type = Token.FUNC_ID_TOKEN
+                    found_return = False
+                    ind = fun_name_tok.ind - 1
+                    while (not found_return) and (ind < fun_name_tok.ind):
+                        if tokens[ind].tok_str == '<':
+                            ind = continue_till_char(tokens, ind, '>', match=True, forward=True)
+                        elif tokens[ind].tok_str in ('::', '~', 'public', 'private', 'protected',
+                                                     ':', '}', '{', ';',
+                                                     'static', 'template', fun_name_tok.tok_str):
+                            ind += 1
+                        else:
+                            found_return = True
+                    if not found_return:
+                        new_stmt.stmt_type = Statement.CONSTRUCT_FUNC_HDR_STMT
                 else:
                     new_stmt.stmt_type = Statement.SEQUENCE_STMT
                 tok_ind = continue_till_char(tokens, tok_ind, ')', True)
                 tmp_tok = get_next_token(tokens, tok_ind)
-                if tmp_tok.tok_str != '{':
+                if semi_tok.ind < left_curly_tok.ind or left_curly_tok.ind == -1:
                     new_stmt.stmt_type = Statement.SEQUENCE_STMT
                     tok_ind = continue_till_char(tokens, tok_ind, ';')
-            else:  # small_tok_str == '{':
+                elif tmp_tok != '{':
+                    tok_ind = continue_till_char(tokens, tok_ind, '{') 
+                    tok_ind -= 1                   
+            else:
                 tok_ind = continue_till_char(tokens, tok_ind, '{', False)
                 tok_ind = get_prev_token(tokens, tok_ind).ind
                 
@@ -551,15 +638,21 @@ def check_capitalization(src_file):
     """TBD."""
     for tok in src_file.tokens:
         if tok.tok_type == Token.FUNC_ID_TOKEN:
-            if tok.tok_str[0].isupper():
-                src_file.lines[tok.line].issues.append((StyleSummary.ERROR_UPPER_LOWER_CASE,
-                                                        'Function name must start with lowercase letter (' + tok.tok_str + ')'))
+            if src_file.statements[tok.stmt].stmt_type == Statement.FUNC_HDR_STMT:
+                if tok.tok_str[0].isupper():
+                    src_file.lines[tok.line].issues.append((StyleSummary.ERROR_UPPER_LOWER_CASE,
+                                                            'Function name must start with lowercase letter (' + tok.tok_str + ')'))
         elif tok.tok_type == Token.VAR_ID_TOKEN:
             if tok.tok_str[0].isupper():
                 src_file.lines[tok.line].issues.append((StyleSummary.ERROR_UPPER_LOWER_CASE,
                                                        'Variable name must start with lowercase letter (' + tok.tok_str + ')'))
-        elif tok.tok_type == Token.CLASS_ID_TOKEN:
+        elif tok.tok_type == Token.TYPEDEF_ID_TOKEN:
             if tok.tok_str[0].islower():
+                src_file.lines[tok.line].issues.append((StyleSummary.ERROR_UPPER_LOWER_CASE,
+                                                        'Typedef name must start with uppercase letter (' + tok.tok_str + ')'))
+        elif tok.tok_type == Token.CLASS_ID_TOKEN:
+            # if tok.tok_str[0].islower():
+            if tok.tok_str[0].islower() and tok.tok_str != 'exception':  # exception is official C++ class
                 src_file.lines[tok.line].issues.append((StyleSummary.ERROR_UPPER_LOWER_CASE,
                                                         'Class name must start with uppercase letter (' + tok.tok_str + ')'))
         elif tok.tok_type == Token.STRUCT_ID_TOKEN:
@@ -629,20 +722,27 @@ def check_spacing(src_file):
                     need_space_after_check = True
             elif tok_str in ['?', ',']:
                 need_space_before = False
-                need_space_before_check = True
+                if tok_str == '?':
+                    need_space_before_check = False
+                else:
+                    need_space_before_check = True
                 need_space_after = True
                 need_space_after_check = True
             elif tok_str == '(':
                 if prev_tok.tok_type == Token.FUNC_ID_TOKEN:
                     need_space_before = False
                     need_space_before_check = True
-                elif prev_tok.tok_str in ['if', 'for', 'while', 'switch']:
+                elif prev_tok.tok_str in ['if', 'for', 'while', 'switch', 'catch']:
                     need_space_before = True
                     need_space_before_check = True
             elif tok_str == '*':
-                if prev_tok.tok_str not in ['(', '[']:
-                    need_space_before = True
-                    need_space_before_check = True
+                tmp_tok = get_next_token(src_file.tokens, tok.ind)
+                if prev_tok.tok_type != Token.OP_TOKEN and tmp_tok.tok_type != Token.OP_TOKEN:
+                    left_char = src_file.lines[tok.line].clean_line[tok.col-1]
+                    right_char = src_file.lines[tok.line].clean_line[tok.col+len(tok.tok_str)]
+                    if (not left_char.isspace()) and (not right_char.isspace()):
+                        src_file.lines[tok.line].issues.append((StyleSummary.ERROR_SPACING,
+                                                                'Missing space before and/or after ' + tok_str))                                                  
             elif tok_str == '-':
                 if prev_tok.tok_str not in ['(', '[']:
                     need_space_before = True
@@ -655,31 +755,60 @@ def check_spacing(src_file):
                     need_space_after = True
                     need_space_before_check = True 
             elif tok_str == '<':
-                next_tok = get_next_token(src_file.tokens, tok.ind)
-                next_next_tok = get_next_token(src_file.tokens, next_tok.ind)
-                if next_next_tok.tok_str in [',', '>']:
-                    need_space_after = False
-                    need_space_after_check = True
-                elif src_file.statements[tok.stmt].stmt_type == Statement.INCLUDE_ANGLE_STMT:
+                in_template = True
+                tmp_tok = get_next_token(src_file.tokens, tok.ind)
+                while (tmp_tok.stmt == tok.stmt) and (tmp_tok.tok_str != '>'):
+                    if ((tmp_tok.tok_type != Token.ID_TOKEN)
+                        and (tmp_tok.tok_str not in [',', '<'])):
+                        in_template = False
+                    tmp_tok = get_next_token(src_file.tokens, tmp_tok.ind)
+                if src_file.statements[tok.stmt].stmt_type == Statement.INCLUDE_ANGLE_STMT:
                     need_space_before = True
                     need_space_before_check = True
                     need_space_after = False
                     need_space_after_check = True
+                elif in_template:
+                    tmp_tok = get_prev_token(src_file.tokens, tok.ind)
+                    need_space_after = False
+                    need_space_after_check = True
+                    if tmp_tok.tok_str == 'template':
+                        need_space_before = True
+                        need_space_before_check = True
+                    else:
+                        need_space_before = False
+                        need_space_before_check = True
                 else:
                     need_space_before = True
                     need_space_before_check = True
                     need_space_after = True
                     need_space_after_check = True
             elif tok_str == '>':
-                prev_prev_tok = get_prev_token(src_file.tokens, prev_tok.ind)
-                if prev_prev_tok.tok_str in [',', '<']:
-                    need_space_before = False
-                    need_space_before_check = True
-                elif src_file.statements[tok.stmt].stmt_type == Statement.INCLUDE_ANGLE_STMT:
+                next_tok = get_next_token(src_file.tokens, tok.ind)
+                in_template = True
+                tmp_tok = prev_tok
+                while (tmp_tok.stmt == tok.stmt) and (tmp_tok.tok_str != '<'):
+                    if ((tmp_tok.tok_type != Token.ID_TOKEN)
+                        and (tmp_tok.tok_str not in [',', '>'])):
+                        in_template = False
+                    tmp_tok = get_prev_token(src_file.tokens, tmp_tok.ind)
+                if src_file.statements[tok.stmt].stmt_type == Statement.INCLUDE_ANGLE_STMT:
                     need_space_before = False
                     need_space_before_check = True
                     need_space_after = True
                     need_space_after_check = True
+                elif in_template:
+                    tmp_tok = get_next_token(src_file.tokens, tok.ind)
+                    if tmp_tok.tok_str in ('>', ',', '::', '(', ';'):
+                        need_space_after = False
+                        need_space_after_check = True
+                    elif tmp_tok.tok_str == '&':
+                        # need_space_after = True
+                        need_space_after_check = False
+                    else:
+                        need_space_after = True
+                        need_space_after_check = True
+                    need_space_before = False
+                    need_space_before_check = True
                 else:
                     need_space_before = True
                     need_space_before_check = True
@@ -706,6 +835,10 @@ def check_spacing(src_file):
                         prev_after = tok.ind
                         src_file.lines[tok.line].issues.append((StyleSummary.ERROR_SPACING,
                                                                 'Missing space after ' + tok_str))
+        elif tok.tok_str.startswith('operator'):
+            if ' ' in tok.tok_str:
+               src_file.lines[tok.line].issues.append((StyleSummary.ERROR_SPACING,
+                                                       'No spaces before/after operator being overloaded ' + tok_str))
         prev_tok = tok
 
 
@@ -735,6 +868,7 @@ def check_indentation(src_file):
                     and src_file.statements[stmt_ind - 1].stmt_type in [Statement.FOR_STMT,
                                                                         Statement.WHILE_STMT,
                                                                         Statement.DO_STMT,
+                                                                        Statement.TRY_CATCH_STMT,
                                                                         Statement.IF_STMT,
                                                                         Statement.ELSE_IF_STMT,
                                                                         Statement.ELSE_STMT]:
@@ -743,7 +877,7 @@ def check_indentation(src_file):
                         tmp_indent += SPACES_PER_INDENT
                 if src_file.tokens[line.first_token].col != tmp_indent:
                     line.issues.append((StyleSummary.ERROR_INDENTATION,
-                                    'Improper indentation - should be ' + str(indent_stack[-1][1]) + ' spaces'))
+                                    'Improper indentation - should be ' + str(tmp_indent) + ' spaces'))
             for tok_ind in range(line.first_token, line.last_token):
                 tmp_stmt_type = src_file.statements[src_file.tokens[tok_ind].stmt].stmt_type
                 if tmp_stmt_type == Statement.END_BLOCK_STMT and tok_ind != line.first_token:
@@ -796,11 +930,13 @@ def check_multiple_stmts(src_file):
                     if prev_stmt.stmt_type not in [Statement.FOR_STMT,
                                                    Statement.WHILE_STMT,
                                                    Statement.DO_STMT,
+                                                   Statement.TRY_CATCH_STMT,
                                                    Statement.IF_STMT,
                                                    Statement.ELSE_IF_STMT,
                                                    Statement.ELSE_STMT,
                                                    Statement.SWITCH_STMT,
                                                    Statement.FUNC_HDR_STMT,
+                                                   Statement.CONSTRUCT_FUNC_HDR_STMT,
                                                    Statement.CLASS_STMT,
                                                    Statement.STRUCT_STMT,
                                                    Statement.ENUM_STMT,
@@ -886,6 +1022,8 @@ def check_other_stuff(src_file):
     prev_stmt = Statement()
     com_with_param = re.compile(r'\/\*[ \n]*\* \S[\s\S]*\*[ \n]*\* Parameter:[ \t]+\S[\s\S]*\* Return:[ \t]+\S[\s\S]*\*\/')
     com_without_param = re.compile(r'\/\*[ \n]*\* \S[\s\S]*\*[ \n]*\* Return:[ \t]+\S[\s\S]*\*\/')
+    com_with_param_no_ret = re.compile(r'\/\*[ \n]*\* \S[\s\S]*\*[ \n]*\* Parameter:[ \t]+\S[\s\S]*\*\/')
+    com_without_param_no_ret = re.compile(r'\/\*[ \n]*\* \S[\s\S]*\*\/')
     for stmt_ind in range(len(src_file.statements)):
         stmt = src_file.statements[stmt_ind]
         start_line = src_file.tokens[stmt.first_token].line
@@ -899,16 +1037,26 @@ def check_other_stuff(src_file):
             blocks.append([False])
         elif stmt.stmt_type == Statement.END_BLOCK_STMT:
             blocks.pop()
+        elif stmt.stmt_type == Statement.ACCESS_STMT:
+            blocks[-1][0] = False
         elif stmt.stmt_type == Statement.DECLARE_STMT:
             if len(blocks) == 1:
                 src_file.lines[start_line].issues.append((StyleSummary.ERROR_GLOBAL_GOTO,
                                                           'No global variables'))
             tok_ind = stmt.first_token
             num_vars = 0
+            after_equal = False
+            after_new = False            
             while tok_ind < stmt.last_token:
                 if src_file.tokens[tok_ind].tok_type in (Token.VAR_ID_TOKEN, Token.CONSTANT_ID_TOKEN):
                     num_vars += 1
-                elif src_file.tokens[tok_ind].tok_str == '[':
+                    after_equal = False
+                    after_new = False
+                elif src_file.tokens[tok_ind].tok_str == 'new':
+                    after_new = True
+                elif src_file.tokens[tok_ind].tok_str == '=':
+                    after_equal = True
+                elif src_file.tokens[tok_ind].tok_str == '[':                    
                     only_nums = True
                     bracket_cnt = 1
                     tok_ind += 1
@@ -924,7 +1072,8 @@ def check_other_stuff(src_file):
                             if not (src_file.tokens[tok_ind].tok_type in [Token.OP_TOKEN, Token.NUMBER_TOKEN]):
                                 only_nums = False
                         tok_ind += 1
-                    if only_nums and tok_cnt > 0:
+                    if ((not after_equal or (after_equal and after_new))
+                        and (only_nums) and (tok_cnt > 0)):
                         src_file.lines[start_line].issues.append((StyleSummary.ERROR_OTHER,
                                                                   'Cannot hard-code number when creating array'))
                 tok_ind += 1
@@ -980,14 +1129,30 @@ def check_other_stuff(src_file):
                     if comment == '':
                         src_file.lines[start_line].issues.append((StyleSummary.ERROR_GLOBAL_GOTO,
                                                                  'break in loop must have comment on this line or previous line explaining purpose'))
-        elif stmt.stmt_type == Statement.FUNC_HDR_STMT:
+        elif stmt.stmt_type in (Statement.FUNC_HDR_STMT, Statement.CONSTRUCT_FUNC_HDR_STMT):
             is_main = False
             func_name = ''
+            only_num_in_array = True
+            has_array = False
+            in_bracket = False
             for token in src_file.tokens[stmt.first_token:stmt.last_token]:
+                if token.tok_str == ']':
+                    in_bracket = False
+                if in_bracket and token.tok_type != Token.NUMBER_TOKEN:
+                    only_num_in_array = False
+                    has_array = True
                 if token.tok_type == Token.FUNC_ID_TOKEN:
                     func_name = token.tok_str
                     if func_name == 'main':
                         is_main = True
+                elif token.tok_str == '[':
+                    next_tok = src_file.tokens[token.ind+1]
+                    in_bracket = next_tok.tok_str != ']'
+                    if in_bracket:
+                        has_array = True
+            if has_array and only_num_in_array:
+                src_file.lines[start_line].issues.append((StyleSummary.ERROR_OTHER,
+                                                          'Cannot hard-code number in size of array parameter'))
             if is_main and found_func:
                 src_file.lines[start_line].issues.append((StyleSummary.ERROR_FUNC_ORDER,
                                                          'main() should be first function/method in file'))
@@ -1005,17 +1170,27 @@ def check_other_stuff(src_file):
                                                          'Missing comment before function/method (' + func_name + ')'))
             else:
                 result = None
-                prev_tok = get_prev_token(src_file.tokens, stmt.last_token-1)
-                if prev_tok.tok_str == '(':
-                    result = com_without_param.match(comment)
+                found_right = False
+                prev_tok_ind = stmt.last_token - 1
+                while prev_tok_ind > stmt.first_token and src_file.tokens[prev_tok_ind].tok_str != ')':
+                    prev_tok_ind -= 1
+                prev_tok = get_prev_token(src_file.tokens, prev_tok_ind)
+                if stmt.stmt_type == Statement.FUNC_HDR_STMT:
+                    if prev_tok.tok_str == '(':
+                        result = com_without_param.match(comment)
+                    else:
+                        result = com_with_param.match(comment)
                 else:
-                    result = com_with_param.match(comment)
+                    if prev_tok.tok_str == '(':
+                        result = com_without_param_no_ret.match(comment)
+                    else:
+                        result = com_with_param_no_ret.match(comment)
                 if result is None:
                     src_file.lines[start_line].issues.append((StyleSummary.ERROR_FUNCTION_COMMENT,
                                                               'Function/method comment is not correct format (' + func_name + ')'))
-        if stmt.stmt_type in [Statement.FUNC_HDR_STMT,
+        if stmt.stmt_type in [Statement.FUNC_HDR_STMT, Statement.CONSTRUCT_FUNC_HDR_STMT,
                               Statement.FOR_STMT, Statement.WHILE_STMT,
-                              Statement.DO_STMT, Statement.IF_STMT,
+                              Statement.DO_STMT, Statement.TRY_CATCH_STMT,
                               Statement.IF_STMT, Statement.ELSE_IF_STMT,
                               Statement.ELSE_STMT, Statement.SWITCH_STMT,
                               Statement.CLASS_STMT]:
@@ -1167,7 +1342,7 @@ def get_summary_results(style_summ, replace_less=False, span_color=False):
     for cat in StyleSummary.CATEGORIES:
         summ_text += get_category_results(style_summ, cat[0], cat[1])
     final_grade = style_summ.score / style_summ.total * 100
-    summ_text = 'Style Score:' + str(style_summ.score) + '/' + str(style_summ.total) + '\n' \
+    summ_text = 'Style Score: ' + str(style_summ.score) + '/' + str(style_summ.total) + '\n' \
                 + '------------------------------\n' + summ_text + "\n"
 
     for src_file in style_summ.files:
