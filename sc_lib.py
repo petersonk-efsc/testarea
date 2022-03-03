@@ -390,12 +390,12 @@ def get_prev_token(tokens, token_ind):
 
 def find_next_token(tokens, tok_ind, find_char, match=False):
     """TBD."""
-    print('KP-DEBUG',tokens[tok_ind].tok_str, tok_ind, find_char, match)
     next_tok = Token()
     match_char_dict = { '(': ')',
                         '{': '}',
                         '[': ']' }
     end_char = ''
+    print('KP-DEBUG',tokens[tok_ind].tok_str, tok_ind, find_char, match, match_char_dict)
     while tok_ind < len(tokens) and tokens[tok_ind].tok_str != find_char:
         print('KP-DEBUG--',tok_ind, len(tokens), tokens[tok_ind].tok_str, find_char, tok_ind < len(tokens), tokens[tok_ind].tok_str != find_char)
         if match and tokens[tok_ind].tok_str in match_char_dict:
@@ -419,7 +419,7 @@ def find_next_token(tokens, tok_ind, find_char, match=False):
             tok_ind += 1
         print('KP-DEBUG2--',tok_ind, len(tokens), tok_ind < len(tokens), find_char)
         if tok_ind < len(tokens):
-            print('KP-DEBUG3--', tokens[tok_ind].tok_str, tokens[tok_ind].tok_str != find_char)
+            print('KP-DEBUG3--', tokens[tok_ind].tok_str, tokens[tok_ind].tok_str != find_char, tokens[tok_ind].tok_str in match_char_dict)
 
     print('KP-DEBUG',tok_ind,len(tokens))
     if tok_ind < len(tokens):
