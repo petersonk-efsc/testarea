@@ -56,6 +56,8 @@ class Statement:
     INCLUDE_QUOTE_STMT = 11
     PREPROCESSOR_STMT = 12
     USING_STMT = 13
+    PACKAGE_STMT = 14
+    IMPORT_STMT = 15
 
     START_BLOCK_STMT = 20
     END_BLOCK_STMT = 21
@@ -98,6 +100,8 @@ class Statement:
     END_STMT = 84
 
     KEYWORD_DICT = {'using': (USING_STMT, True, ';', False),
+                    'package': (PACKAGE_STMT, True, ';', False),
+                    'import': (IMPORT_STMT, True, ';', False),
                     '{': (START_BLOCK_STMT, False, '', False),
                     '}': (END_BLOCK_STMT, False, '', False),
                     'for': (FOR_STMT, True, ')', True),
@@ -144,6 +148,17 @@ class SrcFile:
         self.class_name = self.CASE_PASCAL
         self.func_name = self.CASE_CAMEL
 
+    @property
+    def filename(self):
+        return self._filename
+
+    @filename.setter
+    def filename(self, value):
+        self._filename = value
+        if self._filename.endswith('.java'):
+            self.lang = self.LANG_JAVA
+        else:
+            self.lang = self.LANG_CPP
 
 class StyleSummary:
     """TBD."""
@@ -373,11 +388,32 @@ def get_prev_token(tokens, token_ind):
     return Token()
 
 
-def find_next_token(tokens, tok_ind, find_char):
+def find_next_token(tokens, tok_ind, find_char, match=False):
     """TBD."""
+    print('KP-DEBUG',tokens[tok_ind].tok_str, tok_ind, find_char, match)
     next_tok = Token()
+    match_char_dict = { '(': ')',
+                        '{': '}',
+                        '[': ']' }
+    end_char = ''
     while tok_ind < len(tokens) and tokens[tok_ind].tok_str != find_char:
-        tok_ind += 1
+        if match and tokens[tok_ind].tok_str in match_char_dict:
+            done = False
+            count = 0
+            start_char = tokens[tok_ind].tok_str
+            end_char = match_char_dict[start_char]
+            while not done:
+                if tokens[tok_ind].tok_str == start_char:
+                    count += 1
+                elif tokens[tok_ind].tok_str == end_char:
+                    count -= 1
+                if tokens[tok_ind].tok_str == end_char and count == 0:
+                    done = True
+                else:
+                    tok_ind += 1
+        else:
+            tok_ind += 1
+    print('KP-DEBUG',tok_ind,len(tokens))
     if tok_ind < len(tokens):
         next_tok = tokens[tok_ind]
     return next_tok
@@ -444,7 +480,7 @@ def classify_tokens(src_file):
             new_stmt.stmt_type = key_info[0]
             if key_info[1]:
                 tok_ind = continue_till_char(tokens, tok_ind, key_info[2], key_info[3])
-        elif curr_tok_str in ['try', 'catch']:
+        elif curr_tok_str in ['try', 'catch', 'finally']:
             new_stmt.stmt_type = Statement.TRY_CATCH_STMT
             next_tok = get_next_token(tokens, tok_ind)
             if next_tok.tok_str == '(':
@@ -487,10 +523,10 @@ def classify_tokens(src_file):
             new_stmt.stmt_type = Statement.ACCESS_STMT
             tok_ind = continue_till_char(tokens, tok_ind, ':', False)
         else:
-            left_paren_tok = find_next_token(tokens, tok_ind, '(')
-            semi_tok = find_next_token(tokens, tok_ind, ';')
-            left_curly_tok = find_next_token(tokens, tok_ind, '{')
-            equal_tok = find_next_token(tokens, tok_ind, '=')
+            left_paren_tok = find_next_token(tokens, tok_ind, '(', match=True)
+            semi_tok = find_next_token(tokens, tok_ind, ';', match=True)
+            left_curly_tok = find_next_token(tokens, tok_ind, '{', match=True)
+            equal_tok = find_next_token(tokens, tok_ind, '=', match=True)
             # if ( then function header or prototype or call
             # if =, ; then regular line - possibly declare
             # if { then class or random block or array declaration with initialization
@@ -513,6 +549,10 @@ def classify_tokens(src_file):
                             if tokens[ind].tok_str == 'const':
                                 var_type = Token.CONSTANT_ID_TOKEN
                                 found_const = True
+                            elif tokens[ind].tok_str == 'final' and src_file.lang == SrcFile.LANG_JAVA:
+                                found_const = True
+                                if equal_tok.ind >= 0 and equal_tok.ind < semi_tok.ind:
+                                   var_type = Token.CONSTANT_ID_TOKEN 
                             elif tokens[ind].tok_str == '::':
                                 found_static_var = True
 
@@ -543,7 +583,7 @@ def classify_tokens(src_file):
                                 pass
                             elif tokens[tmp_ind+1].tok_str == '<':
                                 tmp_ind = continue_till_char(tokens, tmp_ind, '>', match=True)
-                            elif tokens[tmp_ind+1].tok_str == '[':
+                            elif tokens[tmp_ind+1].tok_str == '[' and src_file.lang == SrcFile.LANG_CPP:
                                 tokens[tmp_ind].tok_type = var_type
                                 tmp_ind = continue_till_char(tokens, tmp_ind, ']', match=True)
                                 while tmp_ind < semi_tok.ind and tokens[tmp_ind+1].tok_str not in (',', ';'):
@@ -592,7 +632,7 @@ def classify_tokens(src_file):
                     new_stmt.stmt_type = Statement.SEQUENCE_STMT
                 tok_ind = continue_till_char(tokens, tok_ind, ')', True)
                 tmp_tok = get_next_token(tokens, tok_ind)
-                if semi_tok.ind < left_curly_tok.ind or left_curly_tok.ind == -1:
+                if (semi_tok.ind != -1 and semi_tok.ind < left_curly_tok.ind) or left_curly_tok.ind == -1:
                     new_stmt.stmt_type = Statement.SEQUENCE_STMT
                     tok_ind = continue_till_char(tokens, tok_ind, ';')
                 elif tmp_tok != '{':
@@ -618,10 +658,16 @@ def classify_tokens(src_file):
                     elif tokens[tmp_ind].tok_str == 'enum':
                         stmt_type = Statement.ENUM_STMT
                         tok_type = Token.ENUM_ID_TOKEN
-                        tok_ind = continue_till_char(tokens, tok_ind, ';', False)
+                        end_char = ';'
+                        if src_file.lang == SrcFile.LANG_JAVA:
+                            end_char = '}'
+                        tok_ind = continue_till_char(tokens, tok_ind, end_char, False)
                         for tmp_ind in range(small_tok.ind, tok_ind):
                             if src_file.tokens[tmp_ind].tok_type == Token.ID_TOKEN:
                                 src_file.tokens[tmp_ind].tok_type = Token.ENUM_VALUE_ID_TOKEN
+                        if (src_file.lang == SrcFile.LANG_JAVA
+                            and tok_ind + 1 < len(tokens) and tokens[tok_ind + 1].tok_str == ';'):
+                            tok_ind += 1
                         done = True
                     tmp_ind += 1
                 new_stmt.stmt_type = stmt_type
@@ -683,6 +729,7 @@ def check_spacing(src_file):
     prev_after = -1
     for tok in src_file.tokens:
         if tok.tok_type == Token.OP_TOKEN:
+        # if tok.tok_type in [Token.OP_TOKEN, Token.START_BLOCK_STMT, Token.END_BLOCK_STMT]:
             tok_str = tok.tok_str
             need_space_before = False
             need_space_before_check = False
@@ -695,11 +742,22 @@ def check_spacing(src_file):
                 else:                    
                     need_space_before = False
                     need_space_before_check = True
+            elif tok_str in ['}']:
+                next_tok = get_next_token(src_file.tokens, tok.ind)
+                need_space_before = True
+                need_space_before_check = True
+                if next_tok.tok_type == Token.OP_TOKEN:
+                    need_space_after = False
+                    need_space_after_check = True
+                else:
+                    need_space_after = True
+                    need_space_after_check = True                
             elif tok_str in ['<<', '>>',
                              '<=', '>=', '==', '!=', '&&', '||',
                              '*=', '/=', '+=', '-=', '&=', '^=', '|=', '%=',
-                             '+', '/', '%'
-                             ':', '=']:
+                             '+', '/', '%',
+                             '=',
+                             '{' ]:
                 need_space_before = True
                 need_space_before_check = True
                 need_space_after = True
@@ -862,7 +920,11 @@ def check_indentation(src_file):
                     line.issues.append((StyleSummary.ERROR_INDENTATION,
                                         'Indentation for continued line is not correct - should be at least ' + str(indent_stack[-1][1]) + ' spaces'))
             else:
-                tmp_indent = indent_stack[-1][1]
+                if len(indent_stack) > 0:
+                    tmp_indent = indent_stack[-1][1]
+                else:
+                    print('Error checking indentation!')
+                    tmp_indent = 0
                 if stmt_ind > 0 \
                     and src_file.statements[stmt_ind].stmt_type != Statement.START_BLOCK_STMT \
                     and src_file.statements[stmt_ind - 1].stmt_type in [Statement.FOR_STMT,
@@ -944,7 +1006,9 @@ def check_multiple_stmts(src_file):
                         only_one = True
                 ind += 1
             else:    
-                only_one = src_file.statements[ind].stmt_type != Statement.DO_WHILE_STMT
+                only_one = not (src_file.statements[ind].stmt_type == Statement.DO_WHILE_STMT
+                                or (src_file.lang == SrcFile.LANG_JAVA and src_file.statements[ind].stmt_type in
+                                    [Statement.ELSE_IF_STMT, Statement.ELSE_STMT, Statement.TRY_CATCH_STMT]))
                 while ind < len(src_file.statements) and prev_line == src_file.tokens[src_file.statements[ind].first_token].line:
                     ind += 1
             if only_one:
@@ -1000,7 +1064,10 @@ def check_comments(src_file):
     """TBD."""
     if len(src_file.tokens) == 0:
         return
-    com_opening = re.compile(r'\/\*[ \n]*\* \S[\s\S]*\*[ \n]*\* Name:[ \t]+\S[\s\S]*\* Date:[ \t]+\S[\s\S]*\*\/')
+    if src_file.lang == SrcFile.LANG_JAVA:
+        com_opening = re.compile(r'\/\*\*[ \n]*\* \S[\s\S]*\*[ \n]*\* \@author[ \t]+\S[\s\S]*\* \@version[ \t]+\S[\s\S]*\*\/')
+    else:
+        com_opening = re.compile(r'\/\*[ \n]*\* \S[\s\S]*\*[ \n]*\* Name:[ \t]+\S[\s\S]*\* Date:[ \t]+\S[\s\S]*\*\/')
     end_com_line = src_file.tokens[0].line
     end_com_col = src_file.tokens[0].col
     comment = get_comment(src_file, 0, 0, end_com_line, end_com_col)
@@ -1019,11 +1086,18 @@ def check_other_stuff(src_file):
     blocks = [[False]]
     found_include_quote = False
     found_func = False
+    found_package = False
     prev_stmt = Statement()
-    com_with_param = re.compile(r'\/\*[ \n]*\* \S[\s\S]*\*[ \n]*\* Parameter:[ \t]+\S[\s\S]*\* Return:[ \t]+\S[\s\S]*\*\/')
-    com_without_param = re.compile(r'\/\*[ \n]*\* \S[\s\S]*\*[ \n]*\* Return:[ \t]+\S[\s\S]*\*\/')
-    com_with_param_no_ret = re.compile(r'\/\*[ \n]*\* \S[\s\S]*\*[ \n]*\* Parameter:[ \t]+\S[\s\S]*\*\/')
-    com_without_param_no_ret = re.compile(r'\/\*[ \n]*\* \S[\s\S]*\*\/')
+    if src_file.lang == SrcFile.LANG_JAVA:
+        com_with_param = re.compile(r'\/\*\*[ \n]*\* \S[\s\S]*\*[ \n]*\* \@param[ \t]+\S[\s\S]*\* \@return[ \t]+\S[\s\S]*\*\/')
+        com_without_param = re.compile(r'\/\*\*[ \n]*\* \S[\s\S]*\*[ \n]*\* \@return[ \t]+\S[\s\S]*\*\/')
+        com_with_param_no_ret = re.compile(r'\/\*\*[ \n]*\* \S[\s\S]*\*[ \n]*\* \@param[ \t]+\S[\s\S]*\*\/')
+        com_without_param_no_ret = re.compile(r'\/\*\*[ \n]*\* \S[\s\S]*\*\/')
+    else:
+        com_with_param = re.compile(r'\/\*[ \n]*\* \S[\s\S]*\*[ \n]*\* Parameter:[ \t]+\S[\s\S]*\* Return:[ \t]+\S[\s\S]*\*\/')
+        com_without_param = re.compile(r'\/\*[ \n]*\* \S[\s\S]*\*[ \n]*\* Return:[ \t]+\S[\s\S]*\*\/')
+        com_with_param_no_ret = re.compile(r'\/\*[ \n]*\* \S[\s\S]*\*[ \n]*\* Parameter:[ \t]+\S[\s\S]*\*\/')
+        com_without_param_no_ret = re.compile(r'\/\*[ \n]*\* \S[\s\S]*\*\/')
     for stmt_ind in range(len(src_file.statements)):
         stmt = src_file.statements[stmt_ind]
         start_line = src_file.tokens[stmt.first_token].line
@@ -1033,6 +1107,8 @@ def check_other_stuff(src_file):
             if found_include_quote:
                 src_file.lines[start_line].issues.append((StyleSummary.ERROR_PACKAGE_INCLUDE,
                                                           '<> includes should be before "" includes'))
+        elif stmt.stmt_type == Statement.PACKAGE_STMT:
+            found_package = True
         elif stmt.stmt_type == Statement.START_BLOCK_STMT:
             blocks.append([False])
         elif stmt.stmt_type == Statement.END_BLOCK_STMT:
@@ -1093,21 +1169,20 @@ def check_other_stuff(src_file):
                                                       'May not use goto'))
         elif stmt.stmt_type == Statement.BREAK_STMT:
             tmp_stmt_ind = stmt_ind - 1
-            done = False
+            curly_count = 0
             check_for_comment = False
+            done = False
             while tmp_stmt_ind > 0 and not done:
                 if src_file.statements[tmp_stmt_ind].stmt_type == Statement.END_BLOCK_STMT:
-                    while tmp_stmt_ind > 0 and src_file.statements[tmp_stmt_ind].stmt_type != Statement.START_BLOCK_STMT:
-                        tmp_stmt_ind -= 1
-                    if tmp_stmt_ind > 0 and src_file.statements[tmp_stmt_ind - 1].stmt_type in [Statement.FOR_STMT, Statement.WHILE_STMT, Statement.DO_STMT]:
-                        tmp_stmt_ind -= 1
-                else:
-                    if src_file.statements[tmp_stmt_ind].stmt_type in [Statement.CASE_STMT, Statement.DEFAULT_STMT]:
-                        done = True
-                    elif src_file.statements[tmp_stmt_ind].stmt_type in [Statement.FOR_STMT, Statement.WHILE_STMT, Statement.DO_STMT]:
-                        done = True
-                        check_for_comment = True
-                tmp_stmt_ind -= 1
+                    curly_count += 1
+                elif src_file.statements[tmp_stmt_ind].stmt_type == Statement.START_BLOCK_STMT:
+                    curly_count -= 1
+                elif curly_count <= 0 and src_file.statements[tmp_stmt_ind].stmt_type in [Statement.CASE_STMT, Statement.DEFAULT_STMT]:
+                    done = True
+                elif curly_count < 0 and src_file.statements[tmp_stmt_ind].stmt_type in [Statement.FOR_STMT, Statement.WHILE_STMT, Statement.DO_STMT]:
+                    done = True
+                    check_for_comment = True
+                tmp_stmt_ind -= 1                                    
             if check_for_comment:
                 start_com_line = src_file.tokens[prev_stmt.last_token-1].line
                 start_com_col = src_file.tokens[prev_stmt.last_token-1].col
@@ -1198,10 +1273,27 @@ def check_other_stuff(src_file):
             if next_tok.tok_str != '{':
                 src_file.lines[start_line].issues.append((StyleSummary.ERROR_BRACES,
                                                          'Missing opening {'))
+            elif src_file.lang == SrcFile.LANG_JAVA:
+                if next_tok.line > src_file.tokens[stmt.last_token-1].line:
+                    src_file.lines[start_line].issues.append((StyleSummary.ERROR_BRACES,
+                                                          '{ must be on the same line'))
             elif next_tok.line == src_file.tokens[stmt.last_token-1].line:
                 src_file.lines[start_line].issues.append((StyleSummary.ERROR_BRACES,
                                                           '{ must be on the following line'))
+            if (src_file.lang == SrcFile.LANG_JAVA
+                and stmt.stmt_type in [Statement.ELSE_IF_STMT, Statement.ELSE_STMT, Statement.TRY_CATCH_STMT]
+                and src_file.tokens[stmt.first_token].tok_str != 'try'
+                and src_file.tokens[stmt.first_token].line != src_file.tokens[prev_stmt.first_token].line
+                and get_comment(src_file, src_file.tokens[prev_stmt.first_token].line, src_file.tokens[prev_stmt.first_token].col + 1, src_file.tokens[stmt.first_token].line, src_file.tokens[stmt.first_token].col) == ''):
+                src_file.lines[start_line].issues.append((StyleSummary.ERROR_BRACES,
+                                                          'Must be on the same line as previous }'))
         prev_stmt = stmt
+    if (src_file.lang == SrcFile.LANG_JAVA) and (not found_package):
+        pack_line = 0
+        if len(src_file.tokens) > 0:
+            pack_line = src_file.tokens[0].line
+        src_file.lines[pack_line].issues.append((StyleSummary.ERROR_PACKAGE_INCLUDE,
+                                                 'Missing package line'))
 
 
 def get_cat_score(style_summ, cat_num):
