@@ -397,12 +397,13 @@ def find_next_token(tokens, tok_ind, find_char, match=False):
                         '[': ']' }
     end_char = ''
     while tok_ind < len(tokens) and tokens[tok_ind].tok_str != find_char:
+        print('KP-DEBUG--',tok_ind, tokens[tok_ind].tok_str)
         if match and tokens[tok_ind].tok_str in match_char_dict:
             done = False
             count = 0
             start_char = tokens[tok_ind].tok_str
             end_char = match_char_dict[start_char]
-            while not done:
+            while tok_ind < len(tokens) and not done:
                 if tokens[tok_ind].tok_str == start_char:
                     count += 1
                 elif tokens[tok_ind].tok_str == end_char:
