@@ -399,6 +399,7 @@ def find_next_token(tokens, tok_ind, find_char, match=False):
     while tok_ind < len(tokens) and tokens[tok_ind].tok_str != find_char:
         print('KP-DEBUG--',tok_ind, tokens[tok_ind].tok_str)
         if match and tokens[tok_ind].tok_str in match_char_dict:
+            print('KP-DEBUG--in if')
             done = False
             count = 0
             start_char = tokens[tok_ind].tok_str
@@ -412,7 +413,9 @@ def find_next_token(tokens, tok_ind, find_char, match=False):
                     done = True
                 else:
                     tok_ind += 1
+            print('KP-DEBUG--after while')
         else:
+            print('KP-DEBUG--in else')
             tok_ind += 1
     print('KP-DEBUG',tok_ind,len(tokens))
     if tok_ind < len(tokens):
