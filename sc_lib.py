@@ -305,6 +305,8 @@ def tokenize_stmts(src_file):
                             src_file.lines[line_num].first_token = token_cnt + 1
                             line_len = len(line)
                     new_tok.tok_str = new_tok.tok_str.rstrip()
+                if new_tok.tok_str.lower() == 'tostring': ## KP-crazy Javascript/Brython issue
+                    new_tok.tok_str = new_tok.tok_str + 'JS'
                 src_file.tokens.append(new_tok)
                 token_cnt += 1
             elif line[col_num].isspace():
