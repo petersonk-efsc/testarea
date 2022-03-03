@@ -397,7 +397,7 @@ def find_next_token(tokens, tok_ind, find_char, match=False):
                         '[': ']' }
     end_char = ''
     while tok_ind < len(tokens) and tokens[tok_ind].tok_str != find_char:
-        print('KP-DEBUG--',tok_ind, tokens[tok_ind].tok_str)
+        print('KP-DEBUG--',tok_ind, len(tokens), tokens[tok_ind].tok_str, find_char, tok_ind < len(tokens), tokens[tok_ind].tok_str != find_char)
         if match and tokens[tok_ind].tok_str in match_char_dict:
             print('KP-DEBUG--in if')
             done = False
@@ -417,6 +417,10 @@ def find_next_token(tokens, tok_ind, find_char, match=False):
         else:
             print('KP-DEBUG--in else')
             tok_ind += 1
+        print('KP-DEBUG2--',tok_ind, len(tokens), tok_ind < len(tokens), find_char)
+        if tok_ind < len(tokens):
+            print('KP-DEBUG3--', tokens[tok_ind].tok_str, tokens[tok_ind].tok_str != find_char)
+
     print('KP-DEBUG',tok_ind,len(tokens))
     if tok_ind < len(tokens):
         next_tok = tokens[tok_ind]
