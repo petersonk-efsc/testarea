@@ -1,155 +1,45 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-    <head>
-    <meta charset="utf-8"/>
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/pure/2.0.3/pure-min.css" />
-    <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.9.0/brython.min.js">
-    </script>
-    <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.9.0/brython_stdlib.min.js">
-    </script>
-    <script type="text/python" src="stylechecker.py">
-	</script>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+<!--
+		<link rel="stylesheet" href="collapsible.css">
+-->
+
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<!--
+		<script src="collapsible.js"></script>
+		<script src="files.js"></script>
+		<script>
+			modToXml = Module.cwrap('modToXml', 'string', ['string','number']);
+			resToXml = Module.cwrap('resToXml', 'string', ['string','number']);
+			xmlToRes = Module.cwrap('xmlToRes', 'string', ['string','number']);
+			getXmlResChar = Module.cwrap('getXmlResChar', 'number', ['number']);
+		</script>
+		<script src="deskchecker.js"></script>
+-->
 	<script>
-/**************************************************************************/
+function doit() {
+/*
+https://github.com/glotcode/glot/blob/master/api_docs/run/list_languages.md
 
-function changeLang() {
-	const urlParams = new URLSearchParams(window.location.search);
-	if (urlParams.has('files')) {
-	    alert('Cannot change language when specific files are expected');
-	} else {
-	    defLang = document.getElementById("lang").value;
-		defFile = 'fileDispName0';
-		if (defLang == "java") {
-		    document.getElementById(defFile).innerHTML = "YourCode.java";
-		} else if (defLang == "cs") {
-		    document.getElementById(defFile).innerHTML = "YourCode.cs";
-		} else {
-		    document.getElementById(defFile).innerHTML = "YourCode.cpp";
-		}
-	}
-}
-
-function readFile(file, fileSourceId, fileFnameId, fileDispNameId) {
-	const reader = new FileReader();
-	reader.addEventListener('load', function(e) {
-		document.getElementById(fileSourceId).value = e.target.result;
-		document.getElementById(fileFnameId).value = file.name;
-		document.getElementById(fileDispNameId).innerHTML = file.name;
-	});
-	reader.readAsBinaryString(file);
-}
-
-function setupPage() {
-	const urlParams = new URLSearchParams(window.location.search);
-	var maxFiles = 0
-	var matchFiles = false
-
-	if (urlParams.has('files')) {
-		files = urlParams.get('files').split(',')
-		document.getElementById('fileNameList').innerHTML = 'Upload files: ' + files;
-		matchFiles = true;
-		document.getElementById("lang").disabled = true;
-	} else {
-		if (urlParams.has('lang')) {
-			defLang = urlParams.get('lang');
-			if (defLang == "java") {
-				files = ["YourCode.java"];
-			} else if (defLang == "cs") {
-				files = ["YourCode.cs"];
-			} else {
-				files = ["YourCode.cpp"];
-			}
-		} else {
-			files = ["YourCode.cpp"];
-		}
-	}
-	if (files[0].endsWith(".java")) {
-		document.getElementById("lang").value = "java";
-	} else if (files[0].endsWith(".cs")) {
-		document.getElementById("lang").value = "cs";
-	} else {
-		document.getElementById("lang").value = "cpp";
-	}
-	count = 0
-	for (f of files) {
-		fileDispNameId = 'fileDispName' + count;
-		fileSourceId = 'fileSource' + count;
-		fileFnameId = 'fileSource' + count + 'Name';
-
-		var inputElem = document.createElement("div");
-		inputElem.setAttribute('id', 'input' + count)
-		inputElem.innerHTML = '<div id="' + fileDispNameId + '" style="display: inline-block; width: 10%">' + f + '</div>'
-			+ '<textarea id="' + fileSourceId + '" name="' + fileSourceId + '" class="fileText" rows="4" cols="50" wrap="off" style="width: 70%"></textarea>'
-			+ '<input type="hidden" id="' + fileFnameId + '" name="' + fileFnameId + '" value="' + f + '">';
-		document.getElementById("inputDiv").appendChild(inputElem);
-
-		count++;
-		maxFiles++;
-	}
-	var fileInput = document.getElementById('fileInput');
-	fileInput.addEventListener('change', function(e) {
-		numFiles = maxFiles;
-		var expectedFiles = [];
-		for (var i = 0; i < numFiles; i++) {
-			expectedFiles.push('');
-		}
-		var unexpectedFiles = '';
-		for (var i = 0; i < fileInput.files.length; i++) {
-			if (matchFiles) {
-				var found = -1;
-				for (var j = 0; j < numFiles; j++) {
-					if (fileInput.files[i].name == files[j]) {
-						readFile(fileInput.files[i], 'fileSource' + j, 'fileSource' + j + 'Name', 'fileDispName' + j);
-						found = j;
-					}
-				}
-				if (found >= 0) {
-					expectedFiles[found] = fileInput.files[i].name;
-				} else {
-					unexpectedFiles += ' ' + fileInput.files[i].name;
-				}
-			} else if (i < numFiles) {
-				readFile(fileInput.files[i], 'fileSource' + i, 'fileSource' + i + 'Name', 'fileDispName' + i);
-				expectedFiles[i] = fileInput.files[i].name;
-			} else {
-				unexpectedFiles += ' ' + fileInput.files[i].name;
-			}
-		}
-		document.getElementById('fileInput').value = '';
-		var uploadMsg = 'Uploaded:';
-		for (var i = 0; i < numFiles; i++) {
-			uploadMsg += ' ' + expectedFiles[i];
-		}
-		if (unexpectedFiles != '') {
-			uploadMsg += '<br/>Extra Files (not uploaded): ' + unexpectedFiles;
-		}
-		document.getElementById('fileUploadResults').innerHTML = uploadMsg;
-	});
+curl --request GET \
+     --url 'https://glot.io/api/run'
+*/
+	var theUrl = "https://glot.io/api/run"
+theUrl = "https://cors-anywhere.herokuapp.com/" + theUrl;
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
+    xmlHttp.send( null );
+    alert(xmlHttp.responseText);
 }
 	</script>
-    </head>
-    <body onload="brython(); setupPage();" style="margin: 5px">
-		<div id='inputDiv'>
-			<p id='fileNameList'>Upload files</p>
-
-			<p id='fileUploadResults'></p>
-			<input type="file" id="fileInput" name="fileInput" multiple>
+	</head>
+	<body style="width: 100%; margin: 0;">
+		<button id="goButton" onclick="doit();">Go</button>
+		<div id="results">
 		</div>
-		<select id="lang" name="lang" onchange="changeLang()">
-			<option value="cpp">C++</option>
-			<option value="java">Java</option>
-			<!--
-			<option value="cs">C#</option>
-			-->
-		</select>
-		<button id='run'>
-			Check Style
-		</button>
-		<br/>
-		<a href='help.html'>Help</a>
-		<div id="results"></div>
-    </body>
+	</body>
 </html>
