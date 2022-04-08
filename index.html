@@ -29,7 +29,6 @@ curl --request GET \
      --url 'https://glot.io/api/run'
 */
 	var theUrl = "https://glot.io/api/run"
-theUrl = "https://cors-anywhere.herokuapp.com/" + theUrl;
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
     xmlHttp.send( null );
