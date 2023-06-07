@@ -1,44 +1,170 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-	<head>
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		
-<!--
-		<link rel="stylesheet" href="collapsible.css">
--->
-
-		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<!--
-		<script src="collapsible.js"></script>
-		<script src="files.js"></script>
-		<script>
-			modToXml = Module.cwrap('modToXml', 'string', ['string','number']);
-			resToXml = Module.cwrap('resToXml', 'string', ['string','number']);
-			xmlToRes = Module.cwrap('xmlToRes', 'string', ['string','number']);
-			getXmlResChar = Module.cwrap('getXmlResChar', 'number', ['number']);
-		</script>
-		<script src="deskchecker.js"></script>
--->
+    <head>
+    <meta charset="utf-8"/>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/pure/2.0.3/pure-min.css" />
+    <script type="text/javascript" src="py_sc_lib.js"></script>
+    <script type="text/javascript" src="py_style_checker_lib.js"></script>
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/pyodide/v0.17.0/full/pyodide.js"></script>
+	<script type="text/javascript">
+		async function main(){
+			document.getElementById("fileInput").disabled = true;	
+			document.getElementById("checkBtn").disabled = true;	
+			await loadPyodide({ indexURL : 'https://cdn.jsdelivr.net/pyodide/v0.23.2/full/' });
+			await pyodide.runPythonAsync(`
+			import pkg_resources
+			import micropip # runPythonAsync will load micropip automatically
+			await micropip.install("https://petersonk-efsc.github.io/testarea/PyPiWhlFiles/astroid-2.15.5-py3-none-any.whl")
+			await micropip.install("https://petersonk-efsc.github.io/testarea/PyPiWhlFiles/colorama-0.4.6-py2.py3-none-any.whl")
+			## Do NOT load dill as current version of pyodide struggles with it, instead use dill.py that simply renames pickle as dill because dill has same interface as pickle
+			## await micropip.install("https://petersonk-efsc.github.io/testarea/PyPiWhlFiles/dill-0.3.6-py3-none-any.whl")
+			with open("dill.py", "w") as out_file:
+			    out_file.write("from pickle import *\\n")
+			await micropip.install("https://petersonk-efsc.github.io/testarea/PyPiWhlFiles/isort-5.12.0-py3-none-any.whl")
+			await micropip.install("https://petersonk-efsc.github.io/testarea/PyPiWhlFiles/lazy_object_proxy-1.9.0-cp39-cp39-win_amd64.whl")
+			await micropip.install("https://petersonk-efsc.github.io/testarea/PyPiWhlFiles/mccabe-0.7.0-py2.py3-none-any.whl")
+			await micropip.install("https://petersonk-efsc.github.io/testarea/PyPiWhlFiles/platformdirs-3.5.1-py3-none-any.whl")
+			await micropip.install("https://petersonk-efsc.github.io/testarea/PyPiWhlFiles/pycodestyle-2.10.0-py2.py3-none-any")
+			await micropip.install("https://petersonk-efsc.github.io/testarea/PyPiWhlFiles/pylint-2.17.4-py3-none-any.whl")
+			await micropip.install("https://petersonk-efsc.github.io/testarea/PyPiWhlFiles/tomli-2.0.1-py3-none-any.whl")
+			await micropip.install("https://petersonk-efsc.github.io/testarea/PyPiWhlFiles/tomlkit-0.11.8-py3-none-any.whl")
+			await micropip.install("https://petersonk-efsc.github.io/testarea/PyPiWhlFiles/type_extensions-0.1.2-py2.py3-none-any.whl")
+			## If < Python 3.11, then need the following wheel too.  We do NOT need it anymore because pyodide 0.23.2 is Python 3.11
+			## await micropip.install("https://petersonk-efsc.github.io/testarea/PyPiWhlFiles/typing_extensions-4.6.3-py3-none-any.whl")
+			await micropip.install("https://petersonk-efsc.github.io/testarea/PyPiWhlFiles/wrapt-1.15.0-py3-none-any.whl")
+			`);
+			await pyodide.runPythonAsync(pyScLibCode);
+			await pyodide.runPythonAsync(pyStyleCheckerCode);
+			setupPage();
+			document.getElementById("fileInput").disabled = false;	
+			document.getElementById("checkBtn").disabled = false;	
+		}
+	</script>
+	<script type="text/javascript">
+		async function runChecks() {
+			var pycode =
+				"from js import document\n" + 
+				"do_it()\n";
+			await pyodide.runPythonAsync(pycode);
+		}
+	</script>
 	<script>
-function doit() {
-/*
-https://github.com/glotcode/glot/blob/master/api_docs/run/list_languages.md
+/**************************************************************************/
 
-curl --request GET \
-     --url 'https://glot.io/api/run'
-*/
-	var theUrl = "https://glot.io/api/run"
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
-    xmlHttp.send( null );
-    alert(xmlHttp.responseText);
+function readFile(file, fileSourceId, fileFnameId, fileDispNameId) {
+	const reader = new FileReader();
+	reader.addEventListener('load', function(e) {
+		document.getElementById(fileSourceId).value = e.target.result;
+		document.getElementById(fileFnameId).value = file.name;
+		document.getElementById(fileDispNameId).innerHTML = file.name;
+	});
+	reader.readAsBinaryString(file);
+}
+
+function setupPage() {
+	const urlParams = new URLSearchParams(window.location.search);
+	var maxFiles = 0
+	var matchFiles = false
+	if (urlParams.has('files')) {
+		files = urlParams.get('files').split(',')
+		document.getElementById('fileNameList').innerHTML = 'Upload files: ' + files;
+		matchFiles = true;
+	} else {
+		files = ["your_code.py"];
+	}
+	if (urlParams.has('lignore')) {
+		errors = urlParams.get('lignore')
+		document.getElementById('ignoring').innerHTML = '--disable=' + errors;
+	} else {
+		document.getElementById('ignoring').innerHTML = '';
+	}
+	if (files[0].endsWith(".py")) {
+		document.getElementById("lang").value = "py";
+	} else if (files[0].endsWith(".cs")) {
+		document.getElementById("lang").value = "cs";
+	} else {
+		document.getElementById("lang").value = "cpp";
+	}
+	count = 0
+	for (f of files) {
+		fileDispNameId = 'fileDispName' + count;
+		fileSourceId = 'fileSource' + count;
+		fileFnameId = 'fileSource' + count + 'Name';
+
+		var inputElem = document.createElement("div");
+		inputElem.setAttribute('id', 'input' + count)
+		inputElem.innerHTML = '<div id="' + fileDispNameId + '" style="display: inline-block; width: 10%">' + f + '</div>'
+			+ '<textarea id="' + fileSourceId + '" name="' + fileSourceId + '" class="fileText" rows="4" cols="50" wrap="off" style="width: 70%"></textarea>'
+			+ '<input type="hidden" id="' + fileFnameId + '" name="' + fileFnameId + '" value="' + f + '">';
+		document.getElementById("inputDiv").appendChild(inputElem);
+
+		count++;
+		maxFiles++;
+	}
+	var fileInput = document.getElementById('fileInput');
+	fileInput.addEventListener('change', function(e) {
+		numFiles = maxFiles;
+		var expectedFiles = [];
+		for (var i = 0; i < numFiles; i++) {
+			expectedFiles.push('');
+		}
+		var unexpectedFiles = '';
+		for (var i = 0; i < fileInput.files.length; i++) {
+			if (matchFiles) {
+				var found = -1;
+				for (var j = 0; j < numFiles; j++) {
+					if (fileInput.files[i].name == files[j]) {
+						readFile(fileInput.files[i], 'fileSource' + j, 'fileSource' + j + 'Name', 'fileDispName' + j);
+						found = j;
+					}
+				}
+				if (found >= 0) {
+					expectedFiles[found] = fileInput.files[i].name;
+				} else {
+					unexpectedFiles += ' ' + fileInput.files[i].name;
+				}
+			} else if (i < numFiles) {
+				readFile(fileInput.files[i], 'fileSource' + i, 'fileSource' + i + 'Name', 'fileDispName' + i);
+				expectedFiles[i] = fileInput.files[i].name;
+			} else {
+				unexpectedFiles += ' ' + fileInput.files[i].name;
+			}
+		}
+		document.getElementById('fileInput').value = '';
+		var uploadMsg = 'Uploaded:';
+		for (var i = 0; i < numFiles; i++) {
+			uploadMsg += ' ' + expectedFiles[i];
+		}
+		if (unexpectedFiles != '') {
+			uploadMsg += '<br/>Extra Files (not uploaded): ' + unexpectedFiles;
+		}
+		document.getElementById('fileUploadResults').innerHTML = uploadMsg;
+	});
 }
 	</script>
-	</head>
-	<body style="width: 100%; margin: 0;">
-		<button id="goButton" onclick="doit();">Go</button>
-		<div id="results">
+    </head>
+    <body onload="main();" style="margin: 5px">
+		<div id='inputDiv'>
+			<p id='fileNameList'>Upload files</p>
+
+			<p id='fileUploadResults'></p>
+			<input type="file" id="fileInput" name="fileInput" multiple>
 		</div>
-	</body>
+		<select id="lang" name="lang">
+			<option value="py">Python</option>
+			<!--
+			<option value="cpp">C++</option>
+			<option value="java">Java</option>
+			<option value="cs">C#</option>
+			-->
+		</select>
+		<button id="checkBtn" onclick='runChecks();'>
+			Check Style
+		</button>
+		<span id="ignoring"></span>
+		<br/>
+		<a href='help.html'>Help</a>
+		<div id="results"></div>
+    </body>
 </html>

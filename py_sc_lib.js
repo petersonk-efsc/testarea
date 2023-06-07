@@ -2,8 +2,8 @@ var pyScLibCode =
 `import sys
 import os
 import pycodestyle
-# import pylint.epylint as lint #KP
-# import web_epylint as lint
+from pylint.lint import Run
+from pylint.reporters.text import TextReporter
 
 class WebPyCodeStyleReport(pycodestyle.StandardReport):
     """Reporter class."""
@@ -22,20 +22,15 @@ def run_pylint(web_pylint_opts, filename, lines):
     output = '***** pylint *****\\n'
     from io import StringIO
     lint_out = StringIO()
-    #with open('sample.py', 'r') as input_file:
-    #    lines = input_file.read()
-    wb = WebRun([filename, '--from-stdin', '--persistent=n', '--score=n'], exit=False, lines=lines, web_output=lint_out) #lint_out)
-    # print('XXX', wb.linter.reporter.out.getvalue())
+    reporter = TextReporter(lint_out)
+    Run([filename, '--persistent=n', '--score=n'] + web_pylint_opts, reporter=reporter, exit=False)
     output += lint_out.getvalue()
-    return output #KP
+    return output
 
 
 def run_pycodestyle(filename, lines_list):
     """Run pycodestyle."""
     output = '***** pycodestyle *****\\n'
-    # KP - can call pycodestyle and pass in a list of lines
-    #with open('sample.py', 'r') as input_file:
-    #    lines = input_file.readlines()
     style_checker = pycodestyle.Checker(reporter=WebPyCodeStyleReport, lines=lines_list)
     style_checker.filename = filename
     result = style_checker.check_all()
@@ -44,7 +39,7 @@ def run_pycodestyle(filename, lines_list):
             style_part[0], style_part[1],
             style_part[2], style_part[3],
             style_part[4])
-    return output #KP
+    return output
 
 
 class PyFile:
@@ -66,21 +61,24 @@ class PyStyleSumm:
         self.total_file_count = 0
         self.total_line_count = 0
         self.total_missing = 0
-        self.web_pylint_opts = ''
+        self.web_pylint_opts = []
         self.files = []
         self.score = 0
         self.total = 100
 
 
 def get_summary_results(style_summ, replace_less=False, span_color=False):
-    """Main program."""
+    """TBD."""
     summ_text = ''
     for file_to_check in style_summ.files:
         summ_text += file_to_check.filename + ':\\n'
         summ_text += file_to_check.errors
         summ_text += '\\n'
 
-    start_score = (style_summ.total_line_count - style_summ.total_err_count) / style_summ.total_line_count * 100
+    total_line_count = style_summ.total_line_count * 2
+    if total_line_count <= 0:
+        total_line_count = 1
+    start_score = (style_summ.total_line_count * 2 - style_summ.total_err_count) / total_line_count * 100
     style_summ.score = start_score
     missing = ''
     if style_summ.total_missing > 0:
@@ -122,10 +120,12 @@ def get_summary_results(style_summ, replace_less=False, span_color=False):
 
 
 def get_final_grade(style_summ):
+    """TBD."""
     return style_summ.score / style_summ.total * 100
 
 
 def extract_errors(src_file, messages, linter):
+    """TBD."""
     for tmp in messages.split('\\n'):
         if '.py:' in tmp:
             src_file.err_count += 1
