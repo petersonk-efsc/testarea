@@ -6,7 +6,7 @@
           href="https://cdnjs.cloudflare.com/ajax/libs/pure/2.0.3/pure-min.css" />
     <script type="text/javascript" src="py_sc_lib.js"></script>
     <script type="text/javascript" src="py_style_checker_lib.js"></script>
-	<script type="text/javascript" src="https://cdn.jsdelivr.net/pyodide/v0.17.0/full/pyodide.js"></script>
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/pyodide/v0.23.2/full/pyodide.js"></script>
 	<script type="text/javascript">
 		async function main(){
 			document.getElementById("fileInput").disabled = true;	
@@ -19,8 +19,8 @@
 			await micropip.install("https://petersonk-efsc.github.io/testarea/PyPiWhlFiles/colorama-0.4.6-py2.py3-none-any.whl")
 			## Do NOT load dill as current version of pyodide struggles with it, instead use dill.py that simply renames pickle as dill because dill has same interface as pickle
 			## await micropip.install("https://petersonk-efsc.github.io/testarea/PyPiWhlFiles/dill-0.3.6-py3-none-any.whl")
-			## with open("dill.py", "w") as out_file:
-			##    out_file.write("from pickle import *\\n")
+			with open("dill.py", "w") as out_file:
+			    out_file.write("from pickle import *\\n")
 			await micropip.install("https://petersonk-efsc.github.io/testarea/PyPiWhlFiles/isort-5.12.0-py3-none-any.whl")
 			await micropip.install("https://petersonk-efsc.github.io/testarea/PyPiWhlFiles/lazy_object_proxy-1.9.0-cp39-cp39-win_amd64.whl")
 			await micropip.install("https://petersonk-efsc.github.io/testarea/PyPiWhlFiles/mccabe-0.7.0-py2.py3-none-any.whl")
@@ -146,7 +146,7 @@ function setupPage() {
     </head>
     <body onload="main();" style="margin: 5px">
 		<div id='inputDiv'>
-			<p id='fileNameList'>Upload files-1</p>
+			<p id='fileNameList'>Upload files-2</p>
 
 			<p id='fileUploadResults'></p>
 			<input type="file" id="fileInput" name="fileInput" multiple>
