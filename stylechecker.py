@@ -43,7 +43,8 @@ def do_it(event):
         try:        
             process_one_file(src_file)
         except Exception:
-            output_str = '<span style="background-color: pink">FATAL ERROR WHILE PROCESSING FILE - ' + src_file.filename ' - PLEASE CONTACT YOUR INSTRUCTOR</span><br/><br/>'
+            output_str = '<span style="background-color: pink">FATAL ERROR WHILE PROCESSING FILE - ' \
+                         + src_file.filename + ' - PLEASE CONTACT YOUR INSTRUCTOR</span><br/><br/>'
         style_summ.files.append(src_file)
 
     output_str = '<pre>' + output_str + get_summary_results(style_summ, True, True) + '</pre>'
