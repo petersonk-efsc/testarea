@@ -33,16 +33,20 @@ def read_upload_file(src_file, dom_file_obj):
 def do_it(event):
     style_summ = StyleSummary()
     style_summ.files = []
+    output_str = ''
     
     for single_file in document.select('textarea.fileText'):        
         src_file = SrcFile()
         src_file.filename = single_file_name = document[single_file.id + 'Name'].value
         #  src_file.filename = document['fileSource1Name'].value
-        read_upload_file(src_file, single_file.id)        
-        process_one_file(src_file)
+        read_upload_file(src_file, single_file.id)   
+        try:        
+            process_one_file(src_file)
+        except Exception:
+            output_str = '<span style="background-color: pink">FATAL ERROR WHILE PROCESSING FILE - ' + src_file.filename ' - PLEASE CONTACT YOUR INSTRUCTOR</span><br/><br/>'
         style_summ.files.append(src_file)
 
-    output_str = '<pre>' + get_summary_results(style_summ, True, True) + '</pre>'
+    output_str = '<pre>' + output_str + get_summary_results(style_summ, True, True) + '</pre>'
         
     document['results'].text = ''
     document['results'] <= html.P(output_str)
