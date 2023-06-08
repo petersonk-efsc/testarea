@@ -607,7 +607,7 @@ def classify_tokens(src_file):
                             elif tokens[tmp_ind+1].tok_str in (',', ';'):
                                 tokens[tmp_ind].tok_type = var_type
                             tmp_ind += 1
-                tok_ind = continue_till_char(tokens, tok_ind, ';')
+                tok_ind = semi_tok.ind  ## tok_ind = continue_till_char(tokens, tok_ind, ';')
 
             elif small_tok_str == '(':
                 fun_name_tok = get_prev_token(tokens, left_paren_tok.ind)
@@ -746,7 +746,8 @@ def check_spacing(src_file):
                 next_tok = get_next_token(src_file.tokens, tok.ind)
                 need_space_before = True
                 need_space_before_check = True
-                if next_tok.tok_type == Token.OP_TOKEN:
+                ## if next_tok.tok_type == Token.OP_TOKEN:
+                if next_tok.tok_type == Token.OP_TOKEN and next_tok.tok_str != '}':  ## acount for } }
                     need_space_after = False
                     need_space_after_check = True
                 else:
@@ -762,8 +763,16 @@ def check_spacing(src_file):
                 need_space_before_check = True
                 need_space_after = True
                 need_space_after_check = True
+                if tok_str == '=':  ## C++ lambdas
+                    if prev_tok.tok_str in ['[']:
+                        need_space_before = False
+                    next_tok = get_next_token(src_file.tokens, tok.ind)
+                    if next_tok.tok_str in [']']:
+                        need_space_after = False
             elif tok_str in ['::', '->', '.', '[']:
                 need_space_before = False
+                if prev_tok.tok_str in [',']:  ## C++ lambdas
+                    need_space_before = True
                 need_space_before_check = True
                 need_space_after = False
                 need_space_after_check = True
@@ -893,7 +902,7 @@ def check_spacing(src_file):
                         prev_after = tok.ind
                         src_file.lines[tok.line].issues.append((StyleSummary.ERROR_SPACING,
                                                                 'Missing space after ' + tok_str))
-        elif tok.tok_str.startswith('operator'):
+        elif tok.tok_str.startswith('operator') and src_file.lang != SrcFile.LANG_JAVA:
             if ' ' in tok.tok_str:
                src_file.lines[tok.line].issues.append((StyleSummary.ERROR_SPACING,
                                                        'No spaces before/after operator being overloaded ' + tok_str))
@@ -925,6 +934,7 @@ def check_indentation(src_file):
                 else:
                     print('Error checking indentation!')
                     tmp_indent = 0
+                    indent_stack = [['', 0]]
                 if stmt_ind > 0 \
                     and src_file.statements[stmt_ind].stmt_type != Statement.START_BLOCK_STMT \
                     and src_file.statements[stmt_ind - 1].stmt_type in [Statement.FOR_STMT,
@@ -1040,7 +1050,7 @@ def check_token_use(src_file):
         ind += 1
 
 
-def get_comment(src_file, start_com_line, start_com_col, end_com_line, end_com_col):
+def get_comment(src_file, start_com_line, start_com_col, end_com_line, end_com_col, trim_it=True):
     """TBD."""
     comment = ''
     if start_com_line != end_com_line:
@@ -1055,7 +1065,7 @@ def get_comment(src_file, start_com_line, start_com_col, end_com_line, end_com_c
     comment = comment.strip()
     if comment.endswith('*/'):
         trim_to = comment.rfind('/*')
-        if trim_to != -1:
+        if trim_it and trim_to != -1:
             comment = comment[trim_to:]
     return comment
 
@@ -1065,12 +1075,12 @@ def check_comments(src_file):
     if len(src_file.tokens) == 0:
         return
     if src_file.lang == SrcFile.LANG_JAVA:
-        com_opening = re.compile(r'\/\*\*[ \n]*\* \S[\s\S]*\*[ \n]*\* \@author[ \t]+\S[\s\S]*\* \@version[ \t]+\S[\s\S]*\*\/')
+        com_opening = re.compile(r'\/\*\*[ \n]*\* \S[\s\S]*\*[ \n]*\* \@author[ \t]+\S[\s\S]*\* \@version[ \t]+\S[\s\S]*\*\/[\s\S]*')
     else:
-        com_opening = re.compile(r'\/\*[ \n]*\* \S[\s\S]*\*[ \n]*\* Name:[ \t]+\S[\s\S]*\* Date:[ \t]+\S[\s\S]*\*\/')
+        com_opening = re.compile(r'\/\*[ \n]*\* \S[\s\S]*\*[ \n]*\* Name:[ \t]+\S[\s\S]*\* Date:[ \t]+\S[\s\S]*\*\/[\s\S]*')
     end_com_line = src_file.tokens[0].line
     end_com_col = src_file.tokens[0].col
-    comment = get_comment(src_file, 0, 0, end_com_line, end_com_col)
+    comment = get_comment(src_file, 0, 0, end_com_line, end_com_col, False)
     if len(comment) == 0:
         src_file.lines[0].issues.append((StyleSummary.ERROR_FILE_NO_COMMENT,
                                                  'Missing comment at top of file'))
@@ -1113,6 +1123,9 @@ def check_other_stuff(src_file):
             blocks.append([False])
         elif stmt.stmt_type == Statement.END_BLOCK_STMT:
             blocks.pop()
+            if len(blocks) == 0:
+                blocks = [[False]]
+                print('Error checking end blocks!')
         elif stmt.stmt_type == Statement.ACCESS_STMT:
             blocks[-1][0] = False
         elif stmt.stmt_type == Statement.DECLARE_STMT:
@@ -1466,15 +1479,16 @@ def get_final_grade(style_summ):
 
 def process_one_file(src_file):
     """TBD."""
-    remove_comments_and_strings(src_file)
-    tokenize_stmts(src_file)
-    classify_tokens(src_file)
+    if len(src_file.lines) > 0:
+        remove_comments_and_strings(src_file)
+        tokenize_stmts(src_file)
+        classify_tokens(src_file)
 
-    check_indentation(src_file)
-    check_capitalization(src_file)
-    check_spacing(src_file)
-    check_blank_lines(src_file)
-    check_multiple_stmts(src_file)
-    check_token_use(src_file)
-    check_comments(src_file)
-    check_other_stuff(src_file)
+        check_indentation(src_file)
+        check_capitalization(src_file)
+        check_spacing(src_file)
+        check_blank_lines(src_file)
+        check_multiple_stmts(src_file)
+        check_token_use(src_file)
+        check_comments(src_file)
+        check_other_stuff(src_file)
