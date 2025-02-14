@@ -1,0 +1,99 @@
+WEBVTT
+
+00:00.920 --> 00:06.494
+Chapter three, step
+two, PLD lecture.
+
+00:06.494 --> 00:07.740
+>> The program
+that we're going
+
+00:07.740 --> 00:08.805
+to try to write
+
+00:08.805 --> 00:11.130
+for chapter three is
+
+00:11.130 --> 00:13.110
+one that asks the
+user to enter
+
+00:13.110 --> 00:15.825
+a season and a
+Fahrenheit temperature.
+
+00:15.825 --> 00:17.640
+We're going to continue to
+
+00:17.640 --> 00:19.560
+ask them to enter
+seasons and
+
+00:19.560 --> 00:21.210
+temperatures
+until they enter
+
+00:21.210 --> 00:23.624
+quit for the season.
+
+00:23.624 --> 00:26.400
+>> Here is the
+starting code that we
+
+00:26.400 --> 00:29.370
+typically see for
+our programs.
+
+00:29.370 --> 00:30.930
+>> We have a
+declaration section,
+
+00:30.930 --> 00:31.755
+housekeeping,
+
+00:31.755 --> 00:33.360
+while the season is not
+
+00:33.360 --> 00:36.480
+some special value call
+detailLoop until.
+
+00:36.480 --> 00:37.470
+>> And then when
+you're done,
+
+00:37.470 --> 00:38.639
+call endOfJob.
+
+00:38.639 --> 00:40.260
+>> housekeeping, detailLoop
+and endOfJob
+
+00:40.260 --> 00:42.220
+are all listed below,
+
+00:42.220 --> 00:44.314
+waiting for some
+code to be added.
+
+00:44.314 --> 00:47.479
+>> Notice that our
+stop value is quit.
+
+00:47.479 --> 00:49.429
+>> It's enclosed
+in double quotes.
+
+00:49.429 --> 00:52.850
+>> That's how we note
+strings in programming.
+
+00:52.850 --> 00:54.170
+And the data types for
+
+00:54.170 --> 00:55.400
+the first time ever are
+
+00:55.400 --> 00:59.070
+going to be string
+instead of num
